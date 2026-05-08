@@ -1,7 +1,5 @@
 const ADMIN_PASSWORD = "reverse";
 const FIREBASE_WRITE_URL = "https://rgxbotfile-default-rtdb.firebaseio.com/rgx.json";
-const CLOUDINARY_CLOUD_NAME = "dbuwndic4";
-const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
 let rgxData = { files: [], posts: [], users: {}, settings: {} };
 
@@ -39,12 +37,7 @@ let rgxData = { files: [], posts: [], users: {}, settings: {} };
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    try {
-      await savePost(new FormData(form));
-    } catch (error) {
-      document.querySelector("#refreshStatus").textContent = "Save failed";
-      alert(error.message || "Post save failed.");
-    }
+    await savePost(new FormData(form));
   });
 
   supportForm.addEventListener("submit", async (event) => {
@@ -123,7 +116,6 @@ async function savePost(formData) {
   const editingId = String(formData.get("editingPostId") || "").trim();
   const existing = editingId ? (rgxData.posts || []).find((item) => item.id === editingId) : null;
   const imageUrl = String(formData.get("imageUrl") || "").trim();
-  const uploadedImage = imageUrl || (imageFile && imageFile.size ? await uploadImageToCloudinary(imageFile) : "");
   const post = {
     id: editingId || createId(),
     active: existing ? existing.active !== false : true,
@@ -131,7 +123,7 @@ async function savePost(formData) {
     category: String(formData.get("category") || "Downloads").trim(),
     subtitle: String(formData.get("subtitle") || "").trim(),
     description: String(formData.get("description") || "").trim(),
-    image: uploadedImage || (existing && existing.image) || "",
+    image: imageUrl || (imageFile && imageFile.size ? await fileToDataUrl(imageFile) : (existing && existing.image) || ""),
     buttonText: String(formData.get("buttonText") || "Download Now").trim(),
     buttonUrl: String(formData.get("buttonUrl") || "").trim(),
     buttonColor: String(formData.get("buttonColor") || "#ef1f2d").trim(),
@@ -335,22 +327,13 @@ function resetPostForm(form) {
   document.querySelector("#cancelEditBtn").classList.add("hidden");
 }
 
-async function uploadImageToCloudinary(file) {
-  document.querySelector("#refreshStatus").textContent = "Uploading image...";
-  const body = new FormData();
-  body.append("file", file);
-  body.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-  body.append("folder", "rgx-posts");
-
-  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-    method: "POST",
-    body
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.secure_url) {
-    throw new Error(data.error && data.error.message ? data.error.message : "Cloudinary upload failed");
-  }
-  return data.secure_url;
 }
 
 function createId() {

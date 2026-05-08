@@ -52,7 +52,6 @@
       const target = file.shortenedUrl || file.botUrl || file.destinationUrl;
       if (target) {
         redirectDialog.classList.remove("hidden");
-        incrementDownloadStats(data, file).catch(() => {});
         window.setTimeout(() => {
           location.href = target;
         }, 900);
@@ -71,20 +70,6 @@
     timerRing.style.strokeDashoffset = String(circumference);
   }
 })();
-
-async function incrementDownloadStats(data, file) {
-  const files = (data.files || []).map((item) => item.id === file.id ? {
-    ...item,
-    downloads: Number(item.downloads || 0) + 1,
-    lastDownloadedAt: new Date().toISOString()
-  } : item);
-
-  await fetch("https://rgxbotfile-default-rtdb.firebaseio.com/rgx/files.json", {
-    method: "PUT",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(files)
-  });
-}
 
 function escapeHtml(value) {
   return String(value)
