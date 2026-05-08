@@ -1,5 +1,7 @@
 const ADMIN_PASSWORD = "reverse";
 const FIREBASE_WRITE_URL = "https://rgxbotfile-default-rtdb.firebaseio.com/rgx.json";
+const CLOUDINARY_CLOUD_NAME = "dbuwndic4";
+const CLOUDINARY_UPLOAD_PRESET = "ml_default";
 
 let rgxData = { files: [], posts: [], users: {}, settings: {} };
 
@@ -46,7 +48,8 @@ let rgxData = { files: [], posts: [], users: {}, settings: {} };
     rgxData.settings.socialLinks = {
       youtube: document.querySelector("#youtubeLink").value.trim(),
       telegram: document.querySelector("#telegramLink").value.trim(),
-      instagram: document.querySelector("#instagramLink").value.trim()
+      instagram: document.querySelector("#instagramLink").value.trim(),
+      video: document.querySelector("#videoLink").value.trim()
     };
     await writeData();
     await refreshAdmin();
@@ -109,6 +112,7 @@ function renderSupportLinks() {
   document.querySelector("#youtubeLink").value = links.youtube || "";
   document.querySelector("#telegramLink").value = links.telegram || "";
   document.querySelector("#instagramLink").value = links.instagram || "";
+  document.querySelector("#videoLink").value = links.video || links.videoLink || "";
 }
 
 async function savePost(formData) {
@@ -116,14 +120,18 @@ async function savePost(formData) {
   const editingId = String(formData.get("editingPostId") || "").trim();
   const existing = editingId ? (rgxData.posts || []).find((item) => item.id === editingId) : null;
   const imageUrl = String(formData.get("imageUrl") || "").trim();
+  const imageFromUpload = imageFile && imageFile.size ? await uploadImage(imageFile) : "";
+  const isPinned = formData.get("pinnedPost") === "on";
   const post = {
     id: editingId || createId(),
     active: existing ? existing.active !== false : true,
+    pinned: isPinned,
     title: String(formData.get("title") || "").trim(),
     category: String(formData.get("category") || "Downloads").trim(),
     subtitle: String(formData.get("subtitle") || "").trim(),
     description: String(formData.get("description") || "").trim(),
-    image: imageUrl || (imageFile && imageFile.size ? await fileToDataUrl(imageFile) : (existing && existing.image) || ""),
+    htmlContent: String(formData.get("htmlContent") || "").trim(),
+    image: imageUrl || imageFromUpload || (existing && existing.image) || "",
     buttonText: String(formData.get("buttonText") || "Download Now").trim(),
     buttonUrl: String(formData.get("buttonUrl") || "").trim(),
     buttonColor: String(formData.get("buttonColor") || "#ef1f2d").trim(),
@@ -137,6 +145,9 @@ async function savePost(formData) {
   }
 
   rgxData.posts = Array.isArray(rgxData.posts) ? rgxData.posts : [];
+  if (isPinned) {
+    rgxData.posts = rgxData.posts.map((item) => ({ ...item, pinned: false }));
+  }
   if (existing) {
     rgxData.posts = rgxData.posts.map((item) => item.id === editingId ? post : item);
   } else {
@@ -161,7 +172,7 @@ function renderPosts() {
     <article>
       <div>
         <strong>${escapeHtml(post.title)}</strong>
-        <small>${escapeHtml(post.category || "Downloads")} | ${post.active === false ? "Hidden" : "Published"}</small>
+        <small>${escapeHtml(post.category || "Downloads")} | ${post.active === false ? "Hidden" : "Published"}${post.pinned ? " | Pinned" : ""}</small>
         <small>${escapeHtml(post.createdAt || "")}</small>
         <small>${escapeHtml(postLink(post.id))}</small>
       </div>
@@ -169,6 +180,7 @@ function renderPosts() {
         <button type="button" data-action="open" data-id="${escapeHtml(post.id)}">Open</button>
         <button type="button" data-action="copy" data-id="${escapeHtml(post.id)}">Copy</button>
         <button type="button" data-action="edit" data-id="${escapeHtml(post.id)}">Edit</button>
+        <button type="button" data-action="pin" data-id="${escapeHtml(post.id)}">${post.pinned ? "Unpin" : "Pin"}</button>
         <button type="button" data-action="toggle" data-id="${escapeHtml(post.id)}">${post.active === false ? "Enable" : "Disable"}</button>
         <button type="button" data-action="delete" data-id="${escapeHtml(post.id)}">Delete</button>
       </div>
@@ -193,6 +205,12 @@ function renderPosts() {
       }
       if (button.dataset.action === "toggle") {
         post.active = post.active === false;
+        await writeData();
+        await refreshAdmin();
+      }
+      if (button.dataset.action === "pin") {
+        const nextPinned = !post.pinned;
+        rgxData.posts = posts.map((item) => ({ ...item, pinned: item.id === post.id ? nextPinned : false }));
         await writeData();
         await refreshAdmin();
       }
@@ -309,9 +327,11 @@ function fillPostForm(post) {
   form.elements.subtitle.value = post.subtitle || "";
   form.elements.imageUrl.value = post.image && !post.image.startsWith("data:") ? post.image : "";
   form.elements.description.value = post.description || "";
+  form.elements.htmlContent.value = post.htmlContent || "";
   form.elements.buttonUrl.value = post.buttonUrl || "";
   form.elements.buttonText.value = post.buttonText || "Download Now";
   form.elements.buttonColor.value = post.buttonColor || "#e11d2e";
+  form.elements.pinnedPost.checked = !!post.pinned;
   form.elements.editingPostId.value = post.id || "";
   document.querySelector("#publishBtn").textContent = "Update Post";
   document.querySelector("#cancelEditBtn").classList.remove("hidden");
@@ -322,6 +342,7 @@ function resetPostForm(form) {
   form.elements.category.value = "Downloads";
   form.elements.buttonText.value = "Download Now";
   form.elements.buttonColor.value = "#e11d2e";
+  form.elements.pinnedPost.checked = false;
   form.elements.editingPostId.value = "";
   document.querySelector("#publishBtn").textContent = "Publish Post";
   document.querySelector("#cancelEditBtn").classList.add("hidden");
@@ -334,6 +355,21 @@ function fileToDataUrl(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+async function uploadImage(file) {
+  const body = new FormData();
+  body.append("file", file);
+  body.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+  const res = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
+    method: "POST",
+    body
+  });
+
+  if (!res.ok) throw new Error("Cloudinary upload failed");
+  const data = await res.json();
+  return data.secure_url || "";
 }
 
 function createId() {

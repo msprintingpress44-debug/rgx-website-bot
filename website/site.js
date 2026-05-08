@@ -1,18 +1,29 @@
 (async function initHome() {
   const data = await loadRgxData();
+  const posts = normalizePosts(data.posts || []);
   applySocialLinks(data.settings && data.settings.socialLinks);
-  renderPosts(data.posts || []);
+  applyStaticLinks();
+  renderPosts(posts);
   renderDownloads(data.files || []);
+  renderBloggerPosts(posts);
   wireSearch();
 })();
 
+function normalizePosts(posts) {
+  return posts
+    .filter((post) => post && post.active !== false)
+    .slice()
+    .sort((a, b) => String(a.createdAt || "").localeCompare(String(b.createdAt || "")));
+}
+
 function renderPosts(posts) {
-  const active = posts.filter((post) => post.active !== false).slice().reverse();
   const latestTitle = document.querySelector("#latestTitle");
   const pinned = document.querySelector("#pinnedPost");
   const grid = document.querySelector("#postGrid");
   const popular = document.querySelector("#popularPosts");
+  if (!latestTitle || !pinned || !grid || !popular) return;
 
+  const active = posts.slice().reverse();
   if (!active.length) {
     latestTitle.textContent = "No post published yet.";
     pinned.innerHTML = emptyCard("No pinned post", "Create a post from the admin panel.");
@@ -21,17 +32,34 @@ function renderPosts(posts) {
     return;
   }
 
-  latestTitle.textContent = active[0].title || "RGX Post";
-  pinned.innerHTML = postCard(active[0], true);
+  const pinnedPost = active.find((post) => post.pinned) || active[0];
+  latestTitle.textContent = pinnedPost.title || "Rahul Gamer X Post";
+  pinned.innerHTML = postCard(pinnedPost, true);
   grid.innerHTML = active.map((post) => postCard(post, false)).join("");
   renderLabels(active);
   popular.innerHTML = active.slice(0, 5).map((post) => `
-    <a href="./post.html?id=${encodeURIComponent(post.id)}">${escapeHtml(post.title || "RGX Post")}</a>
+    <a href="./post.html?id=${encodeURIComponent(post.id)}">${escapeHtml(post.title || "Rahul Gamer X Post")}</a>
   `).join("");
+}
+
+function renderBloggerPosts(posts) {
+  const featured = document.querySelector("#FeaturedPost1 .itemP.featured");
+  const blogGrid = document.querySelector("#Blog1 .blogP");
+  const popular = document.querySelector("#PopularPosts00 .itemP.popular");
+  if (!featured && !blogGrid && !popular) return;
+
+  const active = posts.slice().reverse();
+  if (!active.length) return;
+  const pinned = active.find((post) => post.pinned) || active[0];
+
+  if (featured) featured.innerHTML = bloggerFeatured(pinned);
+  if (blogGrid) blogGrid.innerHTML = active.map(bloggerCard).join("");
+  if (popular) popular.innerHTML = active.slice(0, 5).map((post, index) => bloggerPopular(post, index)).join("");
 }
 
 function renderDownloads(files) {
   const list = document.querySelector("#downloadList");
+  if (!list) return;
   const active = files.filter((file) => file.active !== false).slice().reverse();
 
   if (!active.length) {
@@ -41,7 +69,7 @@ function renderDownloads(files) {
 
   list.innerHTML = active.map((file) => {
     const size = file.sizeLabel ? `<p>${escapeHtml(file.sizeLabel)}</p>` : "";
-    const title = file.fileName || file.title || "RGX File";
+    const title = file.fileName || file.title || "Rahul Gamer X File";
     return `
       <article class="story-card download-story">
         <div class="file-badge"><span>${escapeHtml(file.extension || "FILE")}</span></div>
@@ -55,17 +83,75 @@ function renderDownloads(files) {
 }
 
 function postCard(post, pinned) {
-  const href = `./post.html?id=${encodeURIComponent(post.id)}`;
+  const href = postHref(post);
   return `
     <article class="${pinned ? "story-card pinned-card" : "story-card"}">
-      ${post.image ? `<a href="${href}"><img src="${post.image}" alt="${escapeHtml(post.title || "RGX Post")}"></a>` : ""}
+      ${post.image ? `<a href="${href}"><img src="${escapeAttr(post.image)}" alt="${escapeHtml(post.title || "Rahul Gamer X Post")}"></a>` : ""}
       <div>
-        <small class="story-meta">${escapeHtml(post.category || "Downloads")} • ${escapeHtml(post.createdAt ? new Date(post.createdAt).toLocaleDateString() : "RGX")}</small>
-        <h3><a href="${href}">${escapeHtml(post.title || "RGX Post")}</a></h3>
+        <small class="story-meta">${escapeHtml(post.category || "Downloads")} - ${escapeHtml(formatDate(post.createdAt))}</small>
+        <h3><a href="${href}">${escapeHtml(post.title || "Rahul Gamer X Post")}</a></h3>
         ${post.subtitle ? `<p>${escapeHtml(post.subtitle)}</p>` : ""}
         ${post.description ? `<p>${escapeHtml(trim(post.description, pinned ? 160 : 92))}</p>` : ""}
         <a class="read-more" href="${href}">Read More</a>
       </div>
+    </article>
+  `;
+}
+
+function bloggerFeatured(post) {
+  const href = postHref(post);
+  return `
+    <article class="i featured flex wrap">
+      <div class="pI cInherit shrink">
+        <a class="thumbnail" href="${href}">
+          ${post.image ? `<img alt="${escapeAttr(post.title || "Rahul Gamer X Post")}" class="img lazy" data-src="${escapeAttr(post.image)}" src="${escapeAttr(post.image)}">` : ""}
+        </a>
+      </div>
+      <div class="pC grow">
+        <div class="pH info flex fontM"><div class="label ellips cInherit" data-text="in"><span><a aria-label="${escapeAttr(post.category || "Downloads")}" data-text="${escapeAttr(post.category || "Downloads")}" href="#"></a></span></div></div>
+        <div class="pT cInherit"><h2 class="name"><a class="clamp" href="${href}">${escapeHtml(post.title || "Rahul Gamer X Post")}</a></h2></div>
+        <div class="pS fontM"><div class="snippet clamp opacity">${escapeHtml(trim(post.description || post.subtitle || "", 180))}</div></div>
+        <div class="pF items flex space-between fontM cInherit noPrint">
+          <time class="time ellips opacity publish" data-text="${escapeAttr(formatDate(post.createdAt))}"></time>
+          <a aria-label="Read more" class="jump jumpLink shrink" data-text="Read more" href="${href}"></a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function bloggerCard(post) {
+  const href = postHref(post);
+  return `
+    <article class="p flex column">
+      <div class="pI cInherit shrink">
+        <a class="thumbnail" href="${href}">
+          ${post.image ? `<img alt="${escapeAttr(post.title || "Rahul Gamer X Post")}" class="img lazy" data-src="${escapeAttr(post.image)}" src="${escapeAttr(post.image)}">` : ""}
+        </a>
+      </div>
+      <div class="pC grow flex column">
+        <div class="pH info flex fontM"><div class="label ellips cInherit" data-text="in"><span><a aria-label="${escapeAttr(post.category || "Downloads")}" data-text="${escapeAttr(post.category || "Downloads")}" href="#"></a></span></div></div>
+        <div class="pT cInherit"><h2 class="name"><a class="clamp" href="${href}">${escapeHtml(post.title || "Rahul Gamer X Post")}</a></h2></div>
+        <div class="pS fontM"><div class="snippet clamp opacity">${escapeHtml(trim(post.description || post.subtitle || "", 120))}</div></div>
+        <div class="pF items flex space-between fontM cInherit noPrint">
+          <time class="time ellips opacity publish" data-text="${escapeAttr(formatDate(post.createdAt))}"></time>
+          <a aria-label="Read more" class="jump jumpLink shrink" data-text="Read more" href="${href}"></a>
+        </div>
+      </div>
+    </article>
+  `;
+}
+
+function bloggerPopular(post, index) {
+  const href = postHref(post);
+  return `
+    <article class="${index === 0 ? "i most flex column" : "i"}">
+      ${index === 0 && post.image ? `<div class="pI cInherit shrink"><a class="thumbnail" href="${href}"><img alt="${escapeAttr(post.title || "Rahul Gamer X Post")}" class="img lazy" data-src="${escapeAttr(post.image)}" src="${escapeAttr(post.image)}"></a></div>` : ""}
+      <div class="pC flex"><div class="pB">
+        <div class="pH info flex cInherit fontM"><time class="time ellips opacity update shrink" data-text="${escapeAttr(formatDate(post.createdAt))}"></time><div class="label ellips cInherit" data-text="in"><a aria-label="${escapeAttr(post.category || "Downloads")}" data-text="${escapeAttr(post.category || "Downloads")}" href="#"></a></div></div>
+        <div class="pT cInherit"><h2 class="name"><a class="clamp" href="${href}">${escapeHtml(post.title || "Rahul Gamer X Post")}</a></h2></div>
+        ${index === 0 ? `<div class="pS fontM"><div class="snippet clamp opacity">${escapeHtml(trim(post.description || post.subtitle || "", 100))}</div></div>` : ""}
+      </div></div>
     </article>
   `;
 }
@@ -82,11 +168,11 @@ function renderLabels(posts) {
 }
 
 function wireSearch() {
-  const input = document.querySelector("#siteSearch");
+  const input = document.querySelector("#siteSearch") || document.querySelector("#forSearch");
   if (!input) return;
   input.addEventListener("input", () => {
     const query = input.value.trim().toLowerCase();
-    document.querySelectorAll(".story-card").forEach((card) => {
+    document.querySelectorAll(".story-card, #Blog1 article.p").forEach((card) => {
       const text = card.textContent.toLowerCase();
       card.classList.toggle("filtered-out", query && !text.includes(query));
     });
@@ -98,20 +184,50 @@ function emptyCard(title, text) {
 }
 
 function applySocialLinks(links = {}) {
-  const map = {
+  const normal = {
     youtube: document.querySelector('[data-social="youtube"]'),
     telegram: document.querySelector('[data-social="telegram"]'),
     instagram: document.querySelector('[data-social="instagram"]')
   };
-
-  Object.entries(map).forEach(([key, element]) => {
+  Object.entries(normal).forEach(([key, element]) => {
     if (element && links[key]) element.href = links[key];
+  });
+
+  updateAnchorByText("Telegram", links.telegram);
+  updateAnchorByText("YouTube", links.youtube);
+  updateAnchorByText("Instagram", links.instagram);
+}
+
+function applyStaticLinks() {
+  updateAnchorByText("About", "./about.html");
+  updateAnchorByText("Contact", "./contact.html");
+  updateAnchorByText("Contact Us", "./contact.html");
+}
+
+function updateAnchorByText(text, href) {
+  if (!href) return;
+  document.querySelectorAll("a").forEach((anchor) => {
+    if (anchor.textContent.trim().toLowerCase() === text.toLowerCase()) anchor.href = href;
   });
 }
 
+function postHref(post) {
+  return `./post.html?id=${encodeURIComponent(post.id)}`;
+}
+
+function formatDate(value) {
+  if (!value) return "Rahul Gamer X";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? String(value) : date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
 function trim(value, length) {
-  const text = String(value || "");
+  const text = String(value || "").replace(/\s+/g, " ").trim();
   return text.length > length ? `${text.slice(0, length - 1)}...` : text;
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value);
 }
 
 function escapeHtml(value) {

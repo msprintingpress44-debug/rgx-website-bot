@@ -800,7 +800,7 @@ Home
 </details>
 </li>
 <li class='leftC'>
-<a aria-label='About' class='a flex op i20' href='https://rahulgamerx.in/p/about.html' itemprop='url'>
+<a aria-label='About' class='a flex op i20' href='./about.html' itemprop='url'>
 <svg class='line' viewBox='0 0 24 24'><path d='M9.16006 10.87C9.06006 10.86 8.94006 10.86 8.83006 10.87C6.45006 10.79 4.56006 8.84 4.56006 6.44C4.56006 3.99 6.54006 2 9.00006 2C11.4501 2 13.4401 3.99 13.4401 6.44C13.4301 8.84 11.5401 10.79 9.16006 10.87Z'></path><path d='M16.41 4C18.35 4 19.91 5.57 19.91 7.5C19.91 9.39 18.41 10.93 16.54 11C16.46 10.99 16.37 10.99 16.28 11'></path><path d='M4.15997 14.56C1.73997 16.18 1.73997 18.82 4.15997 20.43C6.90997 22.27 11.42 22.27 14.17 20.43C16.59 18.81 16.59 16.17 14.17 14.56C11.43 12.73 6.91997 12.73 4.15997 14.56Z'></path><path d='M18.3401 20C19.0601 19.85 19.7401 19.56 20.3001 19.13C21.8601 17.96 21.8601 16.03 20.3001 14.86C19.7501 14.44 19.0801 14.16 18.3701 14'></path></svg>
 <div class='n text'>
 <span itemprop='name'>About</span>
@@ -808,7 +808,7 @@ Home
 </a>
 </li>
 <li class='leftC br'>
-<a aria-label='Contact' class='a flex op i20' href='https://rahulgamerx.in/p/contact-us.html' itemprop='url'>
+<a aria-label='Contact' class='a flex op i20' href='./contact.html' itemprop='url'>
 <svg class='line' viewBox='0 0 24 24'><path d='M12 20.5H7C4 20.5 2 19 2 15.5V8.5C2 5 4 3.5 7 3.5H17C20 3.5 22 5 22 8.5V11.5'></path><path d='M17 9L13.87 11.5C12.84 12.32 11.15 12.32 10.12 11.5L7 9'></path><path d='M19.21 14.77L15.6701 18.31C15.5301 18.45 15.4 18.71 15.37 18.9L15.18 20.25C15.11 20.74 15.45 21.0801 15.94 21.0101L17.29 20.82C17.48 20.79 17.75 20.66 17.88 20.52L21.4201 16.9801C22.0301 16.3701 22.3201 15.6601 21.4201 14.7601C20.5301 13.8701 19.82 14.16 19.21 14.77Z'></path><path d='M18.7001 15.28C19.0001 16.36 19.8401 17.2 20.9201 17.5'></path></svg>
 <div class='n text'>
 <span itemprop='name'>Contact</span>
@@ -2725,6 +2725,8 @@ window.addEventListener("DOMContentLoaded", fetchSubscribers);
 </script>
 
 </script>
+<script src="./firebase-data.js"></script>
+<script src="./site.js"></script>
 <script>
 // <![CDATA[
 const YT_API_KEY = 'AIzaSyBvmomoFO2uyrKCbOOk9XHucuZ_R6dgkqw';
@@ -2732,6 +2734,11 @@ const YT_CHANNEL_ID = 'UCzalynToTXynLbK26sQKObw';
 
 async function fetchLatestVideo() {
     try {
+        const configured = await getConfiguredVideoLink();
+        if (configured) {
+            showVideoLink(configured);
+            return;
+        }
         // FIXED: The & symbol is now escaped as &amp; to prevent the SAXParseException
         const url = 'https://www.googleapis.com/youtube/v3/search?key=' + YT_API_KEY + '&channelId=' + YT_CHANNEL_ID + '&part=snippet,id&order=date&maxResults=1&type=video';
         
@@ -2750,6 +2757,31 @@ async function fetchLatestVideo() {
     } catch (e) {
         console.log("YT Fetch Error");
     }
+}
+
+async function getConfiguredVideoLink() {
+    try {
+        const data = await loadRgxData();
+        const links = data.settings && data.settings.socialLinks ? data.settings.socialLinks : {};
+        return links.video || links.videoLink || "";
+    } catch (e) {
+        return "";
+    }
+}
+
+function showVideoLink(link) {
+    const videoId = extractYouTubeId(link);
+    const embed = videoId
+        ? 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&mute=1&controls=1&modestbranding=1&rel=0&playlist=' + videoId + '&loop=1'
+        : link;
+    document.getElementById('yt-video-container').innerHTML = '<iframe id="yt-iframe" src="' + embed + '" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+    document.getElementById('yt-channel-link').href = link;
+    document.getElementById('yt-notifier').style.display = 'block';
+}
+
+function extractYouTubeId(link) {
+    const match = String(link || "").match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{6,})/);
+    return match ? match[1] : "";
 }
 
 function closeYtNotifier() {

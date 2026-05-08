@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Contact - Rahul Gamer X</title>
+    <meta name="description" content="Contact Rahul Gamer X.">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body class="blog-body">
+    <header class="blog-header compact-blog-header">
+      <div class="blog-top">
+        <a href="./index.html">Home</a>
+        <a href="./about.html">About</a>
+        <a href="./admin.html">Admin Panel</a>
+      </div>
+      <a class="blog-brand" href="./index.html">Rahul Gamer X</a>
+    </header>
+
+    <main class="post-layout">
+      <article class="post-article">
+        <p class="kicker">Contact Us</p>
+        <h1>Contact Rahul Gamer X</h1>
+        <p>For support, updates, paid dialogs, or collaboration, use the social links managed from the admin panel.</p>
+        <div class="popular-list">
+          <a data-social="telegram" href="https://t.me/rahulgamerx" target="_blank" rel="noopener">Telegram</a>
+          <a data-social="youtube" href="https://www.youtube.com/@rahulgamerx" target="_blank" rel="noopener">YouTube</a>
+          <a data-social="instagram" href="#" target="_blank" rel="noopener">Instagram</a>
+        </div>
+      </article>
+      <aside class="blog-sidebar">
+        <section class="sidebar-card">
+          <h3>Pages</h3>
+          <div class="popular-list">
+            <a href="./index.html">Home</a>
+            <a href="./about.html">About</a>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="./firebase-data.js"></script>
+    <script>
+      loadRgxData().then((data) => {
+        const links = (data.settings && data.settings.socialLinks) || {};
+        Object.entries({ telegram: links.telegram, youtube: links.youtube, instagram: links.instagram }).forEach(([key, href]) => {
+          if (!href) return;
+          document.querySelectorAll('[data-social="' + key + '"]').forEach((anchor) => { anchor.href = href; });
+        });
+      }).catch(() => {});
+    </script>
+  </body>
+</html>
