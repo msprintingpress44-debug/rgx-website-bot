@@ -27,6 +27,7 @@ function App() {
   const [data, setData] = useState(emptyData);
   const [loading, setLoading] = useState(true);
   const [route, setRoute] = useState(getRoute());
+  const [favoriteIds, setFavoriteIds] = useState(() => readStoredFavorites());
 
   async function refresh() {
     setLoading(true);
@@ -52,34 +53,54 @@ function App() {
     setData(next);
   }
 
+  function toggleFavorite(id) {
+    setFavoriteIds((current) => {
+      const key = String(id);
+      const next = current.includes(key) ? current.filter((item) => item !== key) : [key, ...current];
+      localStorage.setItem("rgxFavorites", JSON.stringify(next));
+      return next;
+    });
+  }
+
   if (loading) {
     return <Shell navigate={navigate}><div className="loader">Loading Rahul Gamer X...</div></Shell>;
   }
 
-  const pageProps = { data, saveData, refresh, navigate };
+  const pageProps = { data, saveData, refresh, navigate, favoriteIds, toggleFavorite };
   if (route.page === "admin") return <AdminPage {...pageProps} />;
   if (route.page === "about") return <AboutPage navigate={navigate} />;
   if (route.page === "contact") return <ContactPage data={data} navigate={navigate} />;
+  if (route.page === "favorites") return <FavoritesPage {...pageProps} />;
   if (route.page === "download") return <DownloadPage {...pageProps} id={route.id} />;
   return <HomePage {...pageProps} postId={route.postId} />;
 }
 
-function Shell({ children, navigate, dark = true }) {
+function Shell({ children, navigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(() => localStorage.getItem("rgxTheme") || "dark");
   const navItems = [
     { label: "Home", path: "/", icon: "home" },
-    { label: "Downloads", path: "/download", icon: "download" },
+    { label: "Favorites", path: "/favorites", icon: "heart" },
     { label: "About", path: "/about", icon: "user" },
     { label: "Contact", path: "/contact", icon: "mail" }
   ];
 
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("rgxTheme", next);
+    setTheme(next);
+  }
+
   return (
-    <div className={dark ? "app-shell dark" : "app-shell"}>
+    <div className={`app-shell ${theme}`}>
+      <div className="luxury-particles" aria-hidden="true">
+        {Array.from({ length: 12 }).map((_, index) => <span key={index} />)}
+      </div>
       <header className="topbar">
         <button className="icon-btn" onClick={() => setMenuOpen((value) => !value)} aria-label="Menu"><Icon name="menu" /></button>
         <button className="brand-btn" onClick={() => navigate("/")}>Rahul Gamer X</button>
         <div className="search-pill"><Icon name="search" /> <span>e.g. GTA SA Mods, Dialog File</span></div>
-        <button className="icon-btn" onClick={() => navigate("/contact")} aria-label="Contact"><Icon name="moon" /></button>
+        <button className="icon-btn theme-toggle" onClick={toggleTheme} aria-label="Toggle theme"><Icon name={theme === "dark" ? "moon" : "sun"} /></button>
       </header>
       <div className="layout">
         <aside className={menuOpen ? "rail expanded" : "rail"}>
@@ -96,7 +117,7 @@ function Shell({ children, navigate, dark = true }) {
   );
 }
 
-function HomePage({ data, navigate, postId }) {
+function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
   const posts = useMemo(() => sortedPosts(data.posts), [data.posts]);
   const currentPost = postId ? posts.find((post) => String(post.id) === String(postId)) : null;
   const pinned = posts.find((post) => post.pinned) || posts[0];
@@ -106,15 +127,15 @@ function HomePage({ data, navigate, postId }) {
       <main className="content-grid">
         <section className="main-column">
           {currentPost ? (
-            <PostView post={currentPost} />
+            <PostView post={currentPost} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
           ) : (
             <>
               <Hero latest={pinned?.title} />
               <SectionTitle title="Pinned Post" />
-              {pinned ? <PostCard post={pinned} pinned navigate={navigate} /> : <Empty text="No post published yet." />}
+              {pinned ? <PostCard post={pinned} pinned navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} /> : <Empty text="No post published yet." />}
               <SectionTitle title="All Story" />
               <div className="story-grid">
-                {posts.map((post) => <PostCard key={post.id} post={post} navigate={navigate} />)}
+                {posts.map((post) => <PostCard key={post.id} post={post} navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />)}
               </div>
             </>
           )}
@@ -128,9 +149,8 @@ function HomePage({ data, navigate, postId }) {
 function Hero({ latest }) {
   return (
     <section className="hero-panel">
-      <div className="hero-orbit" />
-      <h1>{SUBSCRIBER_TEXT}</h1>
-      <h2>Thank You Fans</h2>
+      <h1><span>{SUBSCRIBER_TEXT}</span></h1>
+      <h2><span>Thank You Fans</span></h2>
       <div className="latest-chip"><span>Latest</span> <b>{latest || "Loading latest post..."}</b></div>
     </section>
   );
@@ -140,9 +160,11 @@ function SectionTitle({ title }) {
   return <h3 className="section-title">{title}<span /></h3>;
 }
 
-function PostCard({ post, navigate, pinned = false }) {
+function PostCard({ post, navigate, favoriteIds = [], toggleFavorite = () => {}, pinned = false }) {
+  const isFavorite = favoriteIds.includes(String(post.id));
   return (
     <article className={pinned ? "post-card pinned" : "post-card"}>
+      <button className={isFavorite ? "favorite-btn active" : "favorite-btn"} onClick={() => toggleFavorite(post.id)} aria-label="Favorite post"><Icon name="heart" /></button>
       {post.image && <img src={post.image} alt={post.title} />}
       <div className="post-card-body">
         <small>{post.category || "Post"}{post.pinned ? " - Pinned" : ""}</small>
@@ -191,11 +213,13 @@ function VideoBox({ link, floating = false }) {
   );
 }
 
-function PostView({ post }) {
+function PostView({ post, favoriteIds = [], toggleFavorite = () => {} }) {
   const buttons = getPostButtons(post);
   const image = post.image || post.imageUrl || post.logo;
+  const isFavorite = favoriteIds.includes(String(post.id));
   return (
     <article className="full-post">
+      <button className={isFavorite ? "favorite-btn post-favorite active" : "favorite-btn post-favorite"} onClick={() => toggleFavorite(post.id)} aria-label="Favorite post"><Icon name="heart" /> <span>{isFavorite ? "Favorited" : "Favorite"}</span></button>
       <h1>{post.templateTitle || post.title}</h1>
       {(post.templateSubtitle || post.category) && <p className="post-kicker">{post.templateSubtitle || post.category}</p>}
       {image && <img className="full-post-image" src={image} alt={post.title} />}
@@ -210,6 +234,24 @@ function PostView({ post }) {
         </div>
       )}
     </article>
+  );
+}
+
+function FavoritesPage({ data, navigate, favoriteIds, toggleFavorite }) {
+  const posts = useMemo(() => sortedPosts(data.posts).filter((post) => favoriteIds.includes(String(post.id))), [data.posts, favoriteIds]);
+  return (
+    <Shell navigate={navigate}>
+      <main className="simple-page favorites-page">
+        <article>
+          <h1>Favorite Posts</h1>
+          <p>Saved posts yahan milenge. Kisi bhi post ke heart icon par click karke add ya remove kar sakte ho.</p>
+          <div className="story-grid">
+            {posts.map((post) => <PostCard key={post.id} post={post} navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />)}
+            {!posts.length && <Empty text="No favorite posts yet." />}
+          </div>
+        </article>
+      </main>
+    </Shell>
   );
 }
 
@@ -519,15 +561,26 @@ function Empty({ text }) {
   return <div className="empty">{text}</div>;
 }
 
+function readStoredFavorites() {
+  try {
+    const stored = JSON.parse(localStorage.getItem("rgxFavorites") || "[]");
+    return Array.isArray(stored) ? stored.map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
 function Icon({ name }) {
   const icons = {
     menu: <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>,
     home: <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></>,
     download: <><path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 21h14" /></>,
+    heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />,
     user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
     mail: <><path d="M4 6h16v12H4z" /><path d="M4 7l8 6 8-6" /></>,
     search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>,
     moon: <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 7 7 0 1 0 20 15.5z" />,
+    sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2" /><path d="M12 20v2" /><path d="M4.93 4.93l1.41 1.41" /><path d="M17.66 17.66l1.41 1.41" /><path d="M2 12h2" /><path d="M20 12h2" /><path d="M4.93 19.07l1.41-1.41" /><path d="M17.66 6.34l1.41-1.41" /></>,
     send: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>,
     play: <path d="M8 5v14l11-7z" />,
     camera: <><path d="M4 8h4l2-3h4l2 3h4v11H4z" /><circle cx="12" cy="13" r="4" /></>,
@@ -545,6 +598,7 @@ function getRoute() {
   if (path === "/admin" || path === "/admin.html") return { page: "admin" };
   if (path === "/about" || path === "/about.html") return { page: "about" };
   if (path === "/contact" || path === "/contact.html") return { page: "contact" };
+  if (path === "/favorites" || path === "/favorites.html") return { page: "favorites" };
   if (path === "/download" || path === "/download.html") return { page: "download", id: params.get("id") };
   if (path === "/post" || path === "/post.html") return { page: "home", postId: params.get("id") };
   return { page: "home", postId: params.get("post") || params.get("id") };
