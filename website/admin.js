@@ -117,10 +117,13 @@ function renderSupportLinks() {
 
 async function savePost(formData) {
   const imageFile = formData.get("image");
+  const logoFile = formData.get("logo");
   const editingId = String(formData.get("editingPostId") || "").trim();
   const existing = editingId ? (rgxData.posts || []).find((item) => item.id === editingId) : null;
   const imageUrl = String(formData.get("imageUrl") || "").trim();
+  const logoUrl = String(formData.get("logoUrl") || "").trim();
   const imageFromUpload = imageFile && imageFile.size ? await uploadImage(imageFile) : "";
+  const logoFromUpload = logoFile && logoFile.size ? await uploadImage(logoFile) : "";
   const isPinned = formData.get("pinnedPost") === "on";
   const post = {
     id: editingId || createId(),
@@ -131,6 +134,10 @@ async function savePost(formData) {
     subtitle: String(formData.get("subtitle") || "").trim(),
     description: String(formData.get("description") || "").trim(),
     htmlContent: String(formData.get("htmlContent") || "").trim(),
+    logo: logoUrl || logoFromUpload || (existing && existing.logo) || "",
+    templateTitle: String(formData.get("templateTitle") || "").trim(),
+    templateSubtitle: String(formData.get("templateSubtitle") || "").trim(),
+    postButtons: parseButtons(String(formData.get("postButtons") || "")),
     image: imageUrl || imageFromUpload || (existing && existing.image) || "",
     buttonText: String(formData.get("buttonText") || "Download Now").trim(),
     buttonUrl: String(formData.get("buttonUrl") || "").trim(),
@@ -326,8 +333,12 @@ function fillPostForm(post) {
   form.elements.category.value = post.category || "Downloads";
   form.elements.subtitle.value = post.subtitle || "";
   form.elements.imageUrl.value = post.image && !post.image.startsWith("data:") ? post.image : "";
+  form.elements.logoUrl.value = post.logo && !post.logo.startsWith("data:") ? post.logo : "";
+  form.elements.templateTitle.value = post.templateTitle || "";
+  form.elements.templateSubtitle.value = post.templateSubtitle || "";
   form.elements.description.value = post.description || "";
   form.elements.htmlContent.value = post.htmlContent || "";
+  form.elements.postButtons.value = Array.isArray(post.postButtons) ? post.postButtons.map((button) => [button.text, button.url, button.subtext].filter(Boolean).join(" | ")).join("\n") : "";
   form.elements.buttonUrl.value = post.buttonUrl || "";
   form.elements.buttonText.value = post.buttonText || "Download Now";
   form.elements.buttonColor.value = post.buttonColor || "#e11d2e";
@@ -342,6 +353,9 @@ function resetPostForm(form) {
   form.elements.category.value = "Downloads";
   form.elements.buttonText.value = "Download Now";
   form.elements.buttonColor.value = "#e11d2e";
+  form.elements.templateTitle.value = "";
+  form.elements.templateSubtitle.value = "";
+  form.elements.postButtons.value = "";
   form.elements.pinnedPost.checked = false;
   form.elements.editingPostId.value = "";
   document.querySelector("#publishBtn").textContent = "Publish Post";
@@ -374,6 +388,17 @@ async function uploadImage(file) {
 
 function createId() {
   return Math.random().toString(16).slice(2, 10);
+}
+
+function parseButtons(value) {
+  return value.split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const [text, url, subtext] = line.split("|").map((part) => part.trim());
+      return { text, url, subtext };
+    })
+    .filter((button) => button.text && button.url);
 }
 
 function escapeHtml(value) {

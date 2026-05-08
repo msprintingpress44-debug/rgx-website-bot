@@ -389,8 +389,13 @@
             <input name="subtitle" type="text" placeholder="Short subtitle">
             <input name="image" type="file" accept="image/*">
             <input id="imageUrl" name="imageUrl" type="url" placeholder="Image URL (optional, better than large upload)">
+            <input name="logo" type="file" accept="image/*">
+            <input id="logoUrl" name="logoUrl" type="url" placeholder="Post logo URL (optional)">
+            <input name="templateTitle" type="text" placeholder="Inside template title, e.g. Unbypassable Login Key Dialog">
+            <input name="templateSubtitle" type="text" placeholder="Inside template subtitle">
             <textarea name="description" rows="7" placeholder="Description"></textarea>
             <textarea name="htmlContent" rows="9" placeholder="Post HTML content (optional). Paste your full custom post body HTML here."></textarea>
+            <textarea name="postButtons" rows="4" placeholder="Extra buttons, one per line: Button Name | Link | Small text"></textarea>
             <select id="fileLinkSelect"></select>
             <input id="buttonUrl" name="buttonUrl" type="url" placeholder="Button link / generated bot download link" required>
             <input name="buttonText" type="text" placeholder="Button text" value="Download Now">
@@ -603,13 +608,17 @@
         document.querySelector('#postForm [name="title"]').value = post.title || '';
         document.querySelector('#postForm [name="category"]').value = post.category || '';
         document.querySelector('#postForm [name="subtitle"]').value = post.subtitle || '';
+        document.querySelector('#postForm [name="templateTitle"]').value = post.templateTitle || '';
+        document.querySelector('#postForm [name="templateSubtitle"]').value = post.templateSubtitle || '';
         document.querySelector('#postForm textarea[name="description"]').value = post.description || '';
         document.querySelector('#postForm textarea[name="htmlContent"]').value = post.htmlContent || '';
+        document.querySelector('#postForm textarea[name="postButtons"]').value = Array.isArray(post.postButtons) ? post.postButtons.map(button => [button.text, button.url, button.subtext].filter(Boolean).join(' | ')).join('\n') : '';
         document.querySelector('#postForm [name="buttonUrl"]').value = post.buttonUrl || '';
         document.querySelector('#postForm [name="buttonText"]').value = post.buttonText || '';
         document.querySelector('#postForm [name="buttonColor"]').value = post.buttonColor || '#e11d2e';
         document.querySelector('#postForm [name="pinnedPost"]').checked = !!post.pinned;
         document.getElementById('imageUrl').value = post.imageUrl || '';
+        document.getElementById('logoUrl').value = post.logo || '';
         editingPostIdInput.value = post.id;
         currentEditId = post.id;
         cancelEditBtn.classList.remove('hidden');
@@ -639,6 +648,12 @@
       const subtitle = formData.get('subtitle');
       const description = formData.get('description');
       const htmlContent = formData.get('htmlContent');
+      const templateTitle = formData.get('templateTitle');
+      const templateSubtitle = formData.get('templateSubtitle');
+      const postButtons = (formData.get('postButtons') || '').split(/\r?\n/).map(line => {
+        const parts = line.split('|').map(part => part.trim());
+        return { text: parts[0], url: parts[1], subtext: parts[2] };
+      }).filter(button => button.text && button.url);
       let buttonUrl = formData.get('buttonUrl');
       const selectedLink = fileLinkSelect.value;
       if(selectedLink && !buttonUrl) buttonUrl = selectedLink;
@@ -647,7 +662,7 @@
       const pinned = formData.get('pinnedPost') === 'on';
       const imageUrl = document.getElementById('imageUrl').value;
       const editingId = editingPostIdInput.value;
-      const postData = { title, category, subtitle, description, htmlContent, buttonUrl, buttonText, buttonColor, imageUrl, image: imageUrl, pinned, timestamp: new Date().toISOString() };
+      const postData = { title, category, subtitle, description, htmlContent, templateTitle, templateSubtitle, postButtons, buttonUrl, buttonText, buttonColor, imageUrl, image: imageUrl, logo: document.getElementById('logoUrl').value, pinned, timestamp: new Date().toISOString() };
       if(editingId) {
         await window.dbOps.updatePost(editingId, postData);
         cancelEditBtn.click();

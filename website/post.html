@@ -1,60 +1,190 @@
 <!doctype html>
-<html lang="en">
+<html dir="ltr" lang="en">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rahul Gamer X Post</title>
-    <meta name="description" content="Rahul Gamer X download post.">
-    <link rel="stylesheet" href="./styles.css">
+    <meta name="description" content="Rahul Gamer X post.">
+    <style>
+      :root {
+        --fontSize: 14px;
+        --fontBody: 'Noto Sans', system-ui, -apple-system, Segoe UI, sans-serif;
+        --themeC: #0e2045;
+        --themeBg: #fffdfc;
+        --headerHeight: 65px;
+        --contentPadding: 22px;
+        --postBody-font: 1.143rem;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--themeBg);
+        color: var(--themeC);
+        font-family: var(--fontBody);
+        font-size: var(--fontSize);
+      }
+      a { color: inherit; }
+      img { max-width: 100%; height: auto; }
+      .gaming-top-bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, #8a2be2, #00d2ff, #a154f1, #00d2ff, #8a2be2);
+        background-size: 200% 100%;
+        animation: gamingGlow 3s linear infinite;
+        z-index: 10;
+        box-shadow: 0 2px 10px rgba(138, 43, 226, 0.5), 0 1px 5px rgba(0, 210, 255, 0.3);
+      }
+      @keyframes gamingGlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+      .data-particles { position: fixed; inset: 0; pointer-events: none; z-index: -1; }
+      .data-particles span {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #00d2ff;
+        box-shadow: 0 0 10px #00d2ff;
+        opacity: 0;
+        animation: floatUp 10s infinite linear;
+      }
+      .data-particles span:nth-child(1) { left: 10%; animation-delay: 0s; }
+      .data-particles span:nth-child(2) { left: 30%; animation-delay: 2s; }
+      .data-particles span:nth-child(3) { left: 50%; animation-delay: 4s; }
+      .data-particles span:nth-child(4) { left: 70%; animation-delay: 6s; }
+      .data-particles span:nth-child(5) { left: 90%; animation-delay: 8s; }
+      @keyframes floatUp {
+        0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+      }
+      .mainW { min-height: 100vh; }
+      .mainN { display: flex; }
+      .mainR { flex: 1; width: 100%; }
+      .maxC { max-width: 860px; margin: 0 auto; padding: 34px var(--contentPadding); }
+      .blogB { width: 100%; }
+      .pT h1 {
+        margin: 0 0 22px;
+        color: #0e2045;
+        font-size: clamp(2rem, 4vw, 3.4rem);
+        line-height: 1.2;
+        font-weight: 500;
+      }
+      .pE { font-size: var(--postBody-font); line-height: 1.7; }
+      .post-logo {
+        display: block;
+        width: min(170px, 45vw);
+        margin: 0 auto 18px;
+        border-radius: 22px;
+        box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+      }
+      .dp-post-wrapper {
+        background: #050505;
+        border-radius: 20px;
+        padding: clamp(18px, 4vw, 30px);
+        border: 1px solid rgba(255, 42, 42, 0.15);
+        box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55);
+        color: #f8fafc;
+        overflow: hidden;
+      }
+      .dp-main-title { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; text-align: center; color: #fff; }
+      .dp-sub-title { text-align: center; color: #ff2a2a; font-size: 0.95em; margin-bottom: 30px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .dp-post-wrapper p { color: #e7ecf8; }
+      .dp-premium-ad {
+        background: linear-gradient(45deg, #1a0000, #330000);
+        border: 2px solid #ff2a2a;
+        border-radius: 14px;
+        padding: 20px;
+        text-align: center;
+        margin: 30px 0;
+      }
+      .dp-ad-btn {
+        background: #ff2a2a;
+        color: #fff;
+        padding: 10px 25px;
+        border-radius: 50px;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 700;
+      }
+      .dp-features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 15px;
+        margin: 35px 0;
+      }
+      .dp-feature-card {
+        display: flex;
+        gap: 15px;
+        background: #121212;
+        padding: 20px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 42, 42, 0.15);
+      }
+      .dp-dl-area { margin-top: 28px; }
+      .dp-dl-button {
+        display: flex;
+        align-items: center;
+        background: #121212;
+        padding: 16px 25px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        text-decoration: none;
+        border: 1px solid rgba(255, 42, 42, 0.15);
+        transition: 0.3s;
+        color: white;
+      }
+      .dp-dl-button:hover { border-color: #ff2a2a; background: rgba(255, 42, 42, 0.1); }
+      .btn-head { font-weight: 800; display: block; }
+      .btn-sub { color: #ff8585; font-size: 0.85em; display: block; }
+      .dp-secondary-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
+      .dp-secondary-link {
+        padding: 10px 22px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 50px;
+        color: #8b9bb4;
+        text-decoration: none;
+      }
+      .yt-corner-box { position: fixed; bottom: 30px; right: 20px; width: 300px; background: rgba(15,15,25,0.98); border: 1px solid #8a2be2; border-radius: 12px; z-index: 9999; backdrop-filter: blur(10px); overflow: hidden; }
+      @media (max-width: 768px) { .yt-corner-box { width: 240px; bottom: 80px; right: 15px; } }
+      .yt-header { display: flex; align-items: center; padding: 10px; background: rgba(138,43,226,0.1); border-bottom: 1px solid rgba(255,255,255,0.05); }
+      .yt-live-dot { width: 8px; height: 8px; background: #ff0055; border-radius: 50%; margin-right: 8px; animation: ytPulse 1.5s infinite; }
+      .yt-title { color: #00d2ff; font-size: 11px; font-weight: bold; flex-grow: 1; }
+      .yt-close { background: none; border: 0; color: #fff; font-size: 24px; cursor: pointer; }
+      .yt-video-wrapper { position: relative; padding-bottom: 56.25%; background: #000; }
+      .yt-video-wrapper iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .yt-btn { display: block; text-align: center; padding: 10px; background: #8a2be2; color: #fff; text-decoration: none; font-weight: bold; }
+      @keyframes ytPulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+    </style>
   </head>
-  <body class="blog-body">
-    <input id="navToggle" class="nav-toggle" type="checkbox" aria-hidden="true">
-
-    <header class="blog-header compact-blog-header">
-      <div class="blog-top">
-        <label class="icon-menu" for="navToggle" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </label>
-        <a href="./index.html">Home</a>
-        <a href="./index.html#channels">Social Media</a>
-        <a href="./about.html">About</a>
-        <a href="./contact.html">Contact</a>
-        <a href="./admin.html">Admin Panel</a>
-      </div>
-      <a class="blog-brand" href="./index.html">Rahul Gamer X</a>
-    </header>
-
-    <aside class="left-drawer">
-      <label class="drawer-close" for="navToggle">Close</label>
-      <a href="./index.html">Home</a>
-      <a href="./index.html#downloads">Downloads</a>
-      <a href="./index.html#channels">Social Media</a>
-      <a href="./about.html">About</a>
-      <a href="./contact.html">Contact</a>
-      <a href="./admin.html">Admin Panel</a>
-    </aside>
-    <label class="drawer-scrim" for="navToggle"></label>
-
-    <main class="post-layout">
-      <article id="postArticle" class="post-article">
-        <p class="kicker">Loading</p>
-        <h1>Preparing post...</h1>
-      </article>
-      <aside class="blog-sidebar">
-        <section class="sidebar-card">
-          <h3>Popular Posts</h3>
-          <div id="postPopular" class="popular-list"></div>
-        </section>
-        <section class="sidebar-card">
-          <h3>Labels</h3>
-          <div id="postLabels" class="label-cloud">
-            <span>RGX</span>
-            <span>Downloads</span>
-            <span>Mods</span>
+  <body class="nB item post" data-theme="default">
+    <div class="data-particles"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gaming-top-bar"></div>
+    <div class="mainW">
+      <div class="mainN">
+        <div class="mainR">
+          <div class="maxC">
+            <main class="blogB">
+              <article class="p post">
+                <div class="pT"><h1 id="postTitle">Loading post...</h1></div>
+                <div class="pE" id="postBody"></div>
+              </article>
+            </main>
           </div>
-        </section>
-      </aside>
-    </main>
+        </div>
+      </div>
+    </div>
+
+    <div class="yt-corner-box" id="yt-notifier" style="display:none;">
+      <div class="yt-header">
+        <span class="yt-live-dot"></span>
+        <span class="yt-title">NEW VIDEO</span>
+        <button class="yt-close" onclick="closeYtNotifier()">&#215;</button>
+      </div>
+      <div class="yt-video-wrapper" id="yt-video-container"></div>
+      <a class="yt-btn" href="#" id="yt-channel-link" target="_blank" rel="noopener">OPEN VIDEO</a>
+    </div>
 
     <script src="./firebase-data.js"></script>
     <script src="./post.js"></script>
