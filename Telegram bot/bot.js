@@ -19,7 +19,10 @@ const {
   FIREBASE_PATH = "rgx",
   REQUIRED_CHANNEL = "",
   REQUIRED_CHANNEL_URL = "",
-  POLLING_ENABLED = "true"
+  UPDATE_MODE = "polling",
+  POLLING_ENABLED = "true",
+  WEBHOOK_URL = "",
+  WEBHOOK_SECRET = ""
 } = process.env;
 
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN is required. Create .env from .env.example.");
@@ -37,6 +40,7 @@ const bot = new TelegramBot(BOT_TOKEN, {
 });
 const states = new Map();
 const dataPath = path.resolve(__dirname, "..", "data", "files.json");
+const webhookPath = `/telegram/${WEBHOOK_SECRET || crypto.createHash("sha256").update(BOT_TOKEN).digest("hex").slice(0, 32)}`;
 let pollingRestartTimer = null;
 
 startHealthServer();
@@ -1110,11 +1114,33 @@ function defaultDb() {
 function startHealthServer() {
   const port = Number(process.env.PORT || 3000);
   const server = http.createServer((req, res) => {
+    if (req.method === "POST" && req.url === webhookPath) {
+      let body = "";
+      req.on("data", (chunk) => {
+        body += chunk;
+        if (body.length > 1_000_000) req.destroy();
+      });
+      req.on("end", () => {
+        try {
+          const update = JSON.parse(body || "{}");
+          bot.processUpdate(update);
+          res.writeHead(200, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ok: true }));
+        } catch (error) {
+          console.error(`Webhook update failed: ${error.message}`);
+          res.writeHead(400, { "content-type": "application/json" });
+          res.end(JSON.stringify({ ok: false }));
+        }
+      });
+      return;
+    }
+
     if (req.url === "/health" || req.url === "/") {
       res.writeHead(200, { "content-type": "application/json" });
       res.end(JSON.stringify({
         ok: true,
         service: "rgx-telegram-bot",
+        mode: UPDATE_MODE,
         uptime: Math.round(process.uptime()),
         time: new Date().toISOString()
       }));
@@ -1135,6 +1161,11 @@ function startHealthServer() {
 }
 
 async function startTelegramPolling() {
+  if (UPDATE_MODE === "webhook") {
+    console.log("Telegram polling disabled because UPDATE_MODE=webhook.");
+    return;
+  }
+
   if (POLLING_ENABLED !== "true") {
     console.log("Telegram polling is disabled. Health server only.");
     return;
@@ -1177,5 +1208,34 @@ async function clearTelegramWebhook() {
   }
 }
 
-startTelegramPolling();
+async function startTelegramUpdates() {
+  if (UPDATE_MODE === "webhook") {
+    await startTelegramWebhook();
+    return;
+  }
+
+  await startTelegramPolling();
+}
+
+async function startTelegramWebhook() {
+  const baseUrl = WEBHOOK_URL || process.env.RENDER_EXTERNAL_URL || "";
+  if (!baseUrl) {
+    console.error("UPDATE_MODE=webhook requires WEBHOOK_URL or RENDER_EXTERNAL_URL.");
+    return;
+  }
+
+  const url = `${baseUrl.replace(/\/$/, "")}${webhookPath}`;
+  try {
+    await bot.stopPolling({ cancel: true }).catch(() => {});
+    await bot.setWebHook(url, {
+      drop_pending_updates: true,
+      allowed_updates: ["message", "callback_query"]
+    });
+    console.log(`Telegram webhook set: ${url.replace(webhookPath, "/telegram/<secret>")}`);
+  } catch (error) {
+    console.error(`Telegram webhook failed to start: ${error.message}`);
+  }
+}
+
+startTelegramUpdates();
 console.log("RGX Telegram bot booted.");
