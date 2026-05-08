@@ -1,701 +1,247 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>RGX Admin — Command Center</title>
-  <meta name="description" content="RGX website post admin with upgraded UI, same core logic.">
-  <!-- Google Font + subtle baseline -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body.admin-page {
-      background: radial-gradient(circle at 10% 20%, #0a0c14, #03050b);
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-      color: #eef2ff;
-      min-height: 100vh;
-    }
-
-    /* main shell */
-    .admin-shell {
-      max-width: 1600px;
-      margin: 0 auto;
-      padding: 1.5rem;
-    }
-
-    /* ---- LOGIN CARD (upgraded glassmorphism) ---- */
-    .admin-login {
-      max-width: 460px;
-      margin: 6rem auto;
-      background: rgba(15, 20, 35, 0.75);
-      backdrop-filter: blur(16px);
-      border-radius: 2rem;
-      padding: 2.5rem 2rem;
-      text-align: center;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.5);
-      transition: all 0.2s ease;
-    }
-    .blog-brand {
-      font-weight: 800;
-      font-size: 2rem;
-      letter-spacing: -0.02em;
-      background: linear-gradient(135deg, #FF4D4D, #FFB347);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: inline-block;
-      margin-bottom: 0.5rem;
-    }
-    .admin-login h1 {
-      font-size: 1.75rem;
-      font-weight: 600;
-      margin-top: 1rem;
-    }
-    .admin-login p {
-      color: #9aa3bf;
-      margin: 0.75rem 0 1.5rem;
-    }
-    .admin-login input {
-      background: #0f111c;
-      border: 1px solid #2a2f42;
-      border-radius: 2rem;
-      padding: 0.9rem 1.2rem;
-      width: 100%;
-      color: white;
-      font-size: 1rem;
-      transition: 0.2s;
-    }
-    .admin-login input:focus {
-      outline: none;
-      border-color: #ff5e3a;
-      box-shadow: 0 0 0 3px rgba(255, 94, 58, 0.2);
-    }
-    .btn {
-      font-weight: 600;
-      border: none;
-      border-radius: 2rem;
-      padding: 0.8rem 1.5rem;
-      cursor: pointer;
-      font-family: inherit;
-      transition: 0.2s;
-      background: #2e3a5c;
-      color: white;
-    }
-    .btn.primary {
-      background: linear-gradient(105deg, #dc2626, #f97316);
-      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
-    }
-    .btn.primary:hover {
-      transform: translateY(-2px);
-      filter: brightness(1.05);
-    }
-    .wide {
-      width: 100%;
-      margin-top: 1.2rem;
-    }
-    .admin-error {
-      color: #ff8a7a;
-      font-size: 0.85rem;
-      margin-top: 1rem;
-    }
-    .hidden {
-      display: none !important;
-    }
-
-    /* ---------- APP LAYOUT (modern side panel) ---------- */
-    .admin-app {
-      display: flex;
-      gap: 1.8rem;
-      flex-wrap: wrap;
-    }
-    .admin-nav {
-      flex: 0 0 260px;
-      background: rgba(8, 12, 24, 0.7);
-      backdrop-filter: blur(12px);
-      border-radius: 2rem;
-      padding: 1.8rem 1rem;
-      border: 1px solid rgba(255,255,255,0.05);
-      height: fit-content;
-      position: sticky;
-      top: 1.5rem;
-    }
-    .admin-nav .blog-brand {
-      font-size: 1.8rem;
-      margin-bottom: 2rem;
-      display: block;
-      text-align: center;
-    }
-    .admin-tab {
-      background: transparent;
-      width: 100%;
-      text-align: left;
-      padding: 0.9rem 1.2rem;
-      margin: 0.4rem 0;
-      border-radius: 1.5rem;
-      font-weight: 500;
-      font-size: 0.95rem;
-      color: #cbd5f0;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .admin-tab.active {
-      background: rgba(220, 38, 38, 0.2);
-      color: white;
-      border-left: 3px solid #ef4444;
-      font-weight: 600;
-    }
-    .admin-tab:hover:not(.active) {
-      background: rgba(255,255,255,0.05);
-      color: white;
-    }
-    /* content area */
-    .admin-content {
-      flex: 1;
-      min-width: 0;
-    }
-    .admin-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-      background: rgba(12, 16, 28, 0.5);
-      backdrop-filter: blur(8px);
-      border-radius: 1.75rem;
-      padding: 1.25rem 1.8rem;
-      border: 1px solid rgba(255,255,255,0.05);
-    }
-    .kicker {
-      text-transform: uppercase;
-      font-size: 0.75rem;
-      letter-spacing: 2px;
-      color: #f97316;
-      font-weight: 500;
-    }
-    .admin-header h1 {
-      font-size: 1.8rem;
-      font-weight: 700;
-    }
-    .admin-toolbar {
-      display: flex;
-      gap: 0.8rem;
-      align-items: center;
-    }
-    .btn.ghost {
-      background: rgba(255,255,255,0.05);
-      border: 1px solid #2a2e44;
-    }
-    .btn.ghost:hover {
-      background: #2a2f48;
-    }
-    #refreshStatus {
-      font-size: 0.8rem;
-      color: #90a0cc;
-    }
-
-    /* cards and grids */
-    .admin-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-    .stat-card {
-      background: rgba(18, 24, 40, 0.7);
-      backdrop-filter: blur(4px);
-      border-radius: 1.5rem;
-      padding: 1.2rem;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .stat-card h3 {
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #bfc9f0;
-      margin-bottom: 0.5rem;
-    }
-    .stat-number {
-      font-size: 2.4rem;
-      font-weight: 800;
-      line-height: 1;
-    }
-
-    .tab-panel {
-      display: none;
-      animation: fade 0.25s ease;
-    }
-    .tab-panel.active {
-      display: block;
-    }
-    @keyframes fade {
-      from { opacity: 0; transform: translateY(6px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-
-    .admin-panel {
-      background: rgba(10, 14, 24, 0.65);
-      backdrop-filter: blur(10px);
-      border-radius: 1.75rem;
-      padding: 1.8rem;
-      margin-bottom: 2rem;
-      border: 1px solid rgba(255,255,255,0.06);
-    }
-    .admin-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .admin-form input, .admin-form textarea, .admin-form select {
-      background: #0b0f1a;
-      border: 1px solid #262c40;
-      border-radius: 1.2rem;
-      padding: 0.9rem 1.2rem;
-      color: white;
-      font-family: inherit;
-      font-size: 0.9rem;
-    }
-    .admin-form textarea {
-      resize: vertical;
-    }
-    .color-row {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      background: #0f1320;
-      padding: 0.5rem 1rem;
-      border-radius: 2rem;
-    }
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-    }
-    .admin-files {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-    .post-card, .download-item, .user-item {
-      background: #0f1422;
-      border-radius: 1.25rem;
-      padding: 1rem 1.2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      transition: 0.1s;
-    }
-    .post-info strong {
-      font-size: 1rem;
-    }
-    .post-actions {
-      display: flex;
-      gap: 0.7rem;
-    }
-    .small-btn {
-      background: #1e243b;
-      border: none;
-      border-radius: 2rem;
-      padding: 0.4rem 1rem;
-      color: white;
-      font-size: 0.75rem;
-      cursor: pointer;
-    }
-    .small-btn.danger {
-      background: #b91c1c;
-    }
-    .badge {
-      background: #f9731644;
-      padding: 0.2rem 0.7rem;
-      border-radius: 1rem;
-      font-size: 0.7rem;
-    }
-
-    @media (max-width: 780px) {
-      .admin-nav {
-        flex: auto;
-        width: 100%;
-        position: static;
-      }
-      .admin-app {
-        flex-direction: column;
-      }
-    }
-  </style>
-</head>
-<body class="admin-page">
-<main class="admin-shell">
-  <!-- LOGIN SECTION -->
-  <section id="adminLogin" class="admin-login">
-    <span class="blog-brand">RGX</span>
-    <h1>Admin Access</h1>
-    <p>Enter master password to manage posts, links & analytics</p>
-    <input id="adminPassword" type="password" placeholder="Password" autocomplete="off">
-    <button id="loginBtn" class="btn primary wide" type="button">Login →</button>
-    <p id="loginError" class="admin-error"></p>
-  </section>
-
-  <!-- MAIN ADMIN PANEL -->
-  <section id="adminApp" class="hidden admin-app">
-    <aside class="admin-nav">
-      <span class="blog-brand">RGX</span>
-      <button class="admin-tab active" data-tab="dashboard" type="button">📊 Dashboard</button>
-      <button class="admin-tab" data-tab="posts" type="button">✍️ Posts</button>
-      <button class="admin-tab" data-tab="analytics" type="button">📈 Analytics</button>
-      <button class="admin-tab" data-tab="downloads" type="button">📦 Downloads</button>
-      <button class="admin-tab" data-tab="support" type="button">🔗 Support Links</button>
-      <button id="logoutBtn" class="admin-tab" type="button">🚪 Logout</button>
-    </aside>
-
-    <section class="admin-content">
-      <div class="admin-header">
-        <div>
-          <p class="kicker">RGX command interface</p>
-          <h1>Admin Studio</h1>
-        </div>
-        <div class="admin-toolbar">
-          <button class="btn ghost" id="refreshAdmin" type="button">⟳ Refresh</button>
-          <button class="btn ghost" id="copyLatest" type="button">📋 Copy Latest</button>
-          <span id="refreshStatus">Ready</span>
-        </div>
-      </div>
-
-      <!-- Stats row (dashboard) -->
-      <section class="admin-grid" id="stats"></section>
-
-      <!-- PANELS -->
-      <div class="tab-panel active" data-panel="dashboard">
-        <section class="admin-panel">
-          <h2>✨ Overview</h2>
-          <p class="muted" style="color:#b9c3e6;">Manage posts, downloads, users & social links from unified dashboard. Changes reflect instantly on RGX frontend.</p>
-        </section>
-      </div>
-
-      <div class="tab-panel" data-panel="posts">
-        <section class="admin-panel">
-          <div class="section-head compact-head">
-            <p class="kicker">✍️ Create/Edit</p>
-            <h2>New Post</h2>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RGX Admin</title>
+    <meta name="description" content="RGX website post admin.">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body class="admin-page">
+    <main class="admin-shell">
+      <!-- Login -->
+      <section id="adminLogin" class="admin-login">
+        <div class="login-glow"></div>
+        <div class="login-content">
+          <div class="login-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/></svg>
           </div>
-          <form id="postForm" class="admin-form">
-            <input name="title" type="text" placeholder="Post title" required>
-            <input name="category" type="text" placeholder="Category / label" value="Downloads">
-            <input name="subtitle" type="text" placeholder="Short subtitle">
-            <input name="image" type="file" accept="image/*">
-            <input id="imageUrl" name="imageUrl" type="url" placeholder="Image URL (optional, better than large upload)">
-            <textarea name="description" rows="7" placeholder="Description"></textarea>
-            <select id="fileLinkSelect"></select>
-            <input id="buttonUrl" name="buttonUrl" type="url" placeholder="Button link / generated bot download link" required>
-            <input name="buttonText" type="text" placeholder="Button text" value="Download Now">
-            <label class="color-row">Button Color <input name="buttonColor" type="color" value="#e11d2e"></label>
-            <input id="editingPostId" name="editingPostId" type="hidden">
-            <div class="form-actions">
-              <button id="publishBtn" class="btn primary wide" type="submit">Publish Post</button>
-              <button id="cancelEditBtn" class="btn ghost hidden" type="button">Cancel Edit</button>
+          <span class="login-brand">RGX</span>
+          <h1>Admin Login</h1>
+          <p class="login-desc">Enter password to manage RGX posts and links.</p>
+          <div class="login-field">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="adminPassword" type="password" placeholder="Enter password">
+          </div>
+          <button id="loginBtn" class="btn primary wide login-btn" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            Login
+          </button>
+          <p id="loginError" class="admin-error"></p>
+        </div>
+      </section>
+
+      <!-- Dashboard -->
+      <section id="adminApp" class="hidden admin-app">
+        <aside class="admin-nav">
+          <div class="admin-nav-brand">
+            <span class="admin-brand-text">RGX</span>
+            <span class="admin-brand-sub">Control Panel</span>
+          </div>
+          <div class="admin-nav-menu">
+            <button class="admin-tab active" data-tab="dashboard" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              Dashboard
+            </button>
+            <button class="admin-tab" data-tab="posts" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Posts
+            </button>
+            <button class="admin-tab" data-tab="analytics" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              Analytics
+            </button>
+            <button class="admin-tab" data-tab="downloads" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Downloads
+            </button>
+            <button class="admin-tab" data-tab="support" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+              Support Links
+            </button>
+          </div>
+          <div class="admin-nav-footer">
+            <button id="logoutBtn" class="admin-tab logout" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Logout
+            </button>
+          </div>
+        </aside>
+
+        <section class="admin-content">
+          <!-- Header -->
+          <div class="admin-header">
+            <div class="admin-header-left">
+              <p class="kicker">Website Control</p>
+              <h1>RGX Dashboard</h1>
             </div>
-          </form>
-        </section>
-
-        <section class="admin-panel">
-          <h2>📋 All Posts / Links</h2>
-          <div id="postList" class="admin-files"></div>
-        </section>
-      </div>
-
-      <div class="tab-panel" data-panel="analytics">
-        <section class="admin-panel">
-          <h2>📊 Analytics Events (clicks)</h2>
-          <div id="analyticsList" class="admin-files"></div>
-        </section>
-      </div>
-
-      <div class="tab-panel" data-panel="downloads">
-        <section class="admin-panel">
-          <h2>📁 Manage Download Links</h2>
-          <div id="downloadAdminList" class="admin-files"></div>
-        </section>
-      </div>
-
-      <div class="tab-panel" data-panel="support">
-        <section class="admin-panel">
-          <h2>🔗 Support / Social Links</h2>
-          <form id="supportForm" class="admin-form">
-            <input id="youtubeLink" type="url" placeholder="YouTube URL" autocomplete="off">
-            <input id="telegramLink" type="url" placeholder="Telegram URL">
-            <input id="instagramLink" type="url" placeholder="Instagram URL">
-            <button class="btn primary wide" type="submit">💾 Save Support Links</button>
-          </form>
-        </section>
-        <section class="admin-panel">
-          <h2>👥 Recent Users (activity)</h2>
-          <div id="adminUsers" class="admin-users" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
-        </section>
-      </div>
-    </section>
-  </section>
-</main>
-
-<!-- Stub firebase-data.js and admin.js – original logic preserved, but UI binding matches -->
-<script>
-  // --------------------- STUB FIREBASE-DATA.JS ---------------------
-  // Emulates original Firebase Data service (same methods)
-  window.dbOps = {
-    posts: [], downloadLinks: [], analytics: [], support: {}, users: [],
-    listeners: [],
-    addListener(cb) { this.listeners.push(cb); },
-    notify() { this.listeners.forEach(cb => cb()); },
-    async fetchPosts() { return this.posts; },
-    async fetchDownloads() { return this.downloadLinks; },
-    async fetchAnalytics() { return this.analytics; },
-    async fetchSupport() { return this.support; },
-    async fetchUsers() { return this.users; },
-    async addPost(post) { this.posts.unshift({ ...post, id: Date.now().toString() }); this.notify(); return true; },
-    async updatePost(id, data) { const idx = this.posts.findIndex(p => p.id == id); if(idx!==-1) this.posts[idx] = {...this.posts[idx], ...data}; this.notify(); return true; },
-    async deletePost(id) { this.posts = this.posts.filter(p => p.id != id); this.notify(); return true; },
-    async addDownloadLink(link) { this.downloadLinks.push({ ...link, id: Date.now().toString() }); this.notify(); return true; },
-    async deleteDownload(id) { this.downloadLinks = this.downloadLinks.filter(d => d.id != id); this.notify(); return true; },
-    async saveSupportLinks(links) { this.support = links; this.notify(); return true; },
-    async recordClick(postId) { const found = this.analytics.find(a => a.postId == postId); if(found) found.clicks = (found.clicks||0)+1; else this.analytics.push({ postId, clicks:1, last: new Date().toISOString() }); this.notify(); },
-    getLatestPost() { return this.posts[0] || null; }
-  };
-  // mock data
-  window.dbOps.posts = [{ id:"p1", title:"RGX Tool", category:"Downloads", subtitle:"pro", description:"latest release", buttonUrl:"https://example.com/dl", buttonText:"Download", buttonColor:"#e11d2e", imageUrl:"" }];
-  window.dbOps.downloadLinks = [{ id:"dl1", name:"RGX Setup v2", url:"https://get.rgx.com/setup" }];
-  window.dbOps.analytics = [{ postId:"p1", clicks:124 }];
-  window.dbOps.support = { youtube:"https://youtube.com/@rgx", telegram:"https://t.me/rgx", instagram:"https://instagram.com/rgx" };
-  window.dbOps.users = [{ name:"visitor_7xx", lastActive:"2 min ago" }, { name:"rgx_fan", lastActive:"1 hour ago" }];
-  // Admin auth (same logic: password = "admin123")
-  window.adminAuth = { login(pwd) { return pwd === "admin123"; } };
-  // initialize sync
-  if(typeof window.initFirebase === 'undefined') window.initFirebase = ()=>{};
-</script>
-
-<script>
-  // --------------------- ADMIN.JS (full preserved logic + UI upgrade) ---------------------
-  (function() {
-    // DOM elements
-    const loginSection = document.getElementById('adminLogin');
-    const appSection = document.getElementById('adminApp');
-    const loginBtn = document.getElementById('loginBtn');
-    const adminPassword = document.getElementById('adminPassword');
-    const loginErrorSpan = document.getElementById('loginError');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const refreshBtn = document.getElementById('refreshAdmin');
-    const copyLatestBtn = document.getElementById('copyLatest');
-    const refreshStatus = document.getElementById('refreshStatus');
-    const statsContainer = document.getElementById('stats');
-    const postListDiv = document.getElementById('postList');
-    const analyticsListDiv = document.getElementById('analyticsList');
-    const downloadAdminList = document.getElementById('downloadAdminList');
-    const adminUsersDiv = document.getElementById('adminUsers');
-    const supportForm = document.getElementById('supportForm');
-    const youtubeLink = document.getElementById('youtubeLink');
-    const telegramLink = document.getElementById('telegramLink');
-    const instagramLink = document.getElementById('instagramLink');
-    const postForm = document.getElementById('postForm');
-    const editingPostIdInput = document.getElementById('editingPostId');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const fileLinkSelect = document.getElementById('fileLinkSelect');
-
-    // Tab handling
-    const tabs = document.querySelectorAll('.admin-tab');
-    const panels = document.querySelectorAll('.tab-panel');
-    let currentEditId = null;
-
-    function switchTab(tabId) {
-      panels.forEach(panel => panel.classList.remove('active'));
-      const activePanel = document.querySelector(`.tab-panel[data-panel="${tabId}"]`);
-      if(activePanel) activePanel.classList.add('active');
-      tabs.forEach(t => t.classList.remove('active'));
-      const activeTabBtn = document.querySelector(`.admin-tab[data-tab="${tabId}"]`);
-      if(activeTabBtn) activeTabBtn.classList.add('active');
-    }
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        const tabVal = tab.getAttribute('data-tab');
-        if(tabVal === 'logout') return;
-        if(tabVal) switchTab(tabVal);
-      });
-    });
-
-    // Login handler
-    function handleLogin() {
-      const pwd = adminPassword.value;
-      if(window.adminAuth && window.adminAuth.login(pwd)) {
-        loginSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
-        loginErrorSpan.innerText = '';
-        refreshAllData();
-      } else {
-        loginErrorSpan.innerText = 'Access denied. Invalid password.';
-      }
-    }
-    loginBtn.addEventListener('click', handleLogin);
-    adminPassword.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
-    logoutBtn.addEventListener('click', () => {
-      loginSection.classList.remove('hidden');
-      appSection.classList.add('hidden');
-      adminPassword.value = '';
-      loginErrorSpan.innerText = '';
-    });
-
-    // Refresh ui from dbOps
-    async function refreshAllData() {
-      refreshStatus.innerText = 'Syncing...';
-      await Promise.all([
-        renderStats(),
-        renderPosts(),
-        renderAnalytics(),
-        renderDownloads(),
-        renderUsers(),
-        loadSupportLinks()
-      ]);
-      refreshStatus.innerText = `Updated ${new Date().toLocaleTimeString()}`;
-    }
-    refreshBtn.addEventListener('click', refreshAllData);
-
-    // Stats
-    async function renderStats() {
-      const posts = await window.dbOps.fetchPosts();
-      const downloads = await window.dbOps.fetchDownloads();
-      const analytics = await window.dbOps.fetchAnalytics();
-      const totalClicks = analytics.reduce((sum,a)=> sum + (a.clicks||0),0);
-      statsContainer.innerHTML = `
-        <div class="stat-card"><h3>📄 Total Posts</h3><div class="stat-number">${posts.length}</div></div>
-        <div class="stat-card"><h3>📎 Downloads</h3><div class="stat-number">${downloads.length}</div></div>
-        <div class="stat-card"><h3>👆 Total Clicks</h3><div class="stat-number">${totalClicks}</div></div>
-        <div class="stat-card"><h3>⚡ Latest Post</h3><div class="stat-number">${posts[0]?.title?.slice(0,15) || '—'}</div></div>
-      `;
-    }
-
-    // Render posts (full CRUD)
-    async function renderPosts() {
-      const posts = await window.dbOps.fetchPosts();
-      if(!postListDiv) return;
-      if(posts.length === 0) { postListDiv.innerHTML = '<div class="post-card">No posts yet. Create one!</div>'; return; }
-      postListDiv.innerHTML = posts.map(post => `
-        <div class="post-card">
-          <div class="post-info"><strong>${escapeHtml(post.title)}</strong> <span class="badge">${post.category || 'general'}</span><br><small>🔗 ${post.buttonUrl?.slice(0,40)}</small></div>
-          <div class="post-actions">
-            <button class="small-btn edit-post" data-id="${post.id}">✏️ Edit</button>
-            <button class="small-btn danger delete-post" data-id="${post.id}">🗑️ Delete</button>
+            <div class="admin-toolbar">
+              <button class="btn ghost admin-action-btn" id="refreshAdmin" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                Refresh
+              </button>
+              <button class="btn ghost admin-action-btn" id="copyLatest" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                Copy Latest
+              </button>
+              <span id="refreshStatus" class="refresh-status">Ready</span>
+            </div>
           </div>
-        </div>
-      `).join('');
-      document.querySelectorAll('.edit-post').forEach(btn => btn.addEventListener('click', (e) => editPost(btn.dataset.id)));
-      document.querySelectorAll('.delete-post').forEach(btn => btn.addEventListener('click', async (e) => { if(confirm('Delete post?')) await window.dbOps.deletePost(btn.dataset.id); refreshAllData(); }));
-    }
-    async function editPost(id) {
-      const posts = await window.dbOps.fetchPosts();
-      const post = posts.find(p => p.id == id);
-      if(post) {
-        document.querySelector('#postForm [name="title"]').value = post.title || '';
-        document.querySelector('#postForm [name="category"]').value = post.category || '';
-        document.querySelector('#postForm [name="subtitle"]').value = post.subtitle || '';
-        document.querySelector('#postForm textarea[name="description"]').value = post.description || '';
-        document.querySelector('#postForm [name="buttonUrl"]').value = post.buttonUrl || '';
-        document.querySelector('#postForm [name="buttonText"]').value = post.buttonText || '';
-        document.querySelector('#postForm [name="buttonColor"]').value = post.buttonColor || '#e11d2e';
-        document.getElementById('imageUrl').value = post.imageUrl || '';
-        editingPostIdInput.value = post.id;
-        currentEditId = post.id;
-        cancelEditBtn.classList.remove('hidden');
-        document.querySelector('#publishBtn').innerText = '✏️ Update Post';
-      }
-    }
-    cancelEditBtn.addEventListener('click', () => {
-      postForm.reset();
-      editingPostIdInput.value = '';
-      currentEditId = null;
-      cancelEditBtn.classList.add('hidden');
-      document.querySelector('#publishBtn').innerText = 'Publish Post';
-    });
 
-    // Populate download select for posts
-    async function populateDownloadSelect() {
-      const downloads = await window.dbOps.fetchDownloads();
-      fileLinkSelect.innerHTML = '<option value="">-- Select existing download link (optional) --</option>' + downloads.map(d => `<option value="${d.url}">${d.name}</option>`).join('');
-    }
+          <!-- Stats -->
+          <section class="admin-grid" id="stats"></section>
 
-    // Post form submit
-    postForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(postForm);
-      const title = formData.get('title');
-      const category = formData.get('category');
-      const subtitle = formData.get('subtitle');
-      const description = formData.get('description');
-      let buttonUrl = formData.get('buttonUrl');
-      const selectedLink = fileLinkSelect.value;
-      if(selectedLink && !buttonUrl) buttonUrl = selectedLink;
-      const buttonText = formData.get('buttonText');
-      const buttonColor = formData.get('buttonColor');
-      const imageUrl = document.getElementById('imageUrl').value;
-      const editingId = editingPostIdInput.value;
-      const postData = { title, category, subtitle, description, buttonUrl, buttonText, buttonColor, imageUrl, timestamp: new Date().toISOString() };
-      if(editingId) {
-        await window.dbOps.updatePost(editingId, postData);
-        cancelEditBtn.click();
-      } else {
-        await window.dbOps.addPost(postData);
-        postForm.reset();
-      }
-      refreshAllData();
-      switchTab('posts');
-    });
+          <!-- Dashboard Tab -->
+          <section class="tab-panel active" data-panel="dashboard">
+            <section class="admin-panel overview-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <h2>Overview</h2>
+              </div>
+              <p class="muted">Manage posts, download links, users, social links, and site content from one dashboard.</p>
+            </section>
+          </section>
 
-    // Analytics render
-    async function renderAnalytics() {
-      const analytics = await window.dbOps.fetchAnalytics();
-      const posts = await window.dbOps.fetchPosts();
-      analyticsListDiv.innerHTML = analytics.length ? analytics.map(a => `<div class="post-card"><span>📌 Post ID: ${a.postId} | Clicks: ${a.clicks} | Last: ${a.last || '—'}</span></div>`).join('') : '<div class="post-card">No click analytics yet.</div>';
-    }
-    async function renderDownloads() {
-      const downloads = await window.dbOps.fetchDownloads();
-      downloadAdminList.innerHTML = downloads.map(d => `<div class="post-card"><span>📎 ${escapeHtml(d.name)}<br><small>${d.url}</small></span><button class="small-btn danger del-dl" data-id="${d.id}">Remove</button></div>`).join('');
-      document.querySelectorAll('.del-dl').forEach(btn => btn.addEventListener('click', async (e) => { await window.dbOps.deleteDownload(btn.dataset.id); refreshAllData(); }));
-    }
-    async function renderUsers() {
-      const users = await window.dbOps.fetchUsers();
-      adminUsersDiv.innerHTML = users.map(u => `<div class="user-item">👤 ${escapeHtml(u.name)} <span class="badge">${u.lastActive}</span></div>`).join('');
-    }
-    async function loadSupportLinks() {
-      const links = await window.dbOps.fetchSupport();
-      youtubeLink.value = links.youtube || '';
-      telegramLink.value = links.telegram || '';
-      instagramLink.value = links.instagram || '';
-    }
-    supportForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await window.dbOps.saveSupportLinks({ youtube: youtubeLink.value, telegram: telegramLink.value, instagram: instagramLink.value });
-      refreshStatus.innerText = 'Support links saved!';
-      setTimeout(()=>refreshAllData(), 400);
-    });
+          <!-- Posts Tab -->
+          <section class="tab-panel" data-panel="posts">
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <div>
+                  <p class="kicker">Create</p>
+                  <h2>New Post</h2>
+                </div>
+              </div>
+              <form id="postForm" class="admin-form">
+                <div class="form-group">
+                  <label>Post Title</label>
+                  <input name="title" type="text" placeholder="Post title" required>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Category</label>
+                    <input name="category" type="text" placeholder="Category / label" value="Downloads">
+                  </div>
+                  <div class="form-group">
+                    <label>Subtitle</label>
+                    <input name="subtitle" type="text" placeholder="Short subtitle">
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Image Upload</label>
+                    <input name="image" type="file" accept="image/*">
+                  </div>
+                  <div class="form-group">
+                    <label>Image URL</label>
+                    <input id="imageUrl" name="imageUrl" type="url" placeholder="Image URL (optional)">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <textarea name="description" rows="7" placeholder="Description"></textarea>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>File Link</label>
+                    <select id="fileLinkSelect"></select>
+                  </div>
+                  <div class="form-group">
+                    <label>Button URL</label>
+                    <input id="buttonUrl" name="buttonUrl" type="url" placeholder="Button link / download link" required>
+                  </div>
+                </div>
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label>Button Text</label>
+                    <input name="buttonText" type="text" placeholder="Button text" value="Download Now">
+                  </div>
+                  <div class="form-group">
+                    <label class="color-row">Button Color <input name="buttonColor" type="color" value="#e11d2e"></label>
+                  </div>
+                </div>
+                <input id="editingPostId" name="editingPostId" type="hidden">
+                <div class="form-actions">
+                  <button id="publishBtn" class="btn primary wide" type="submit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    Publish Post
+                  </button>
+                  <button id="cancelEditBtn" class="btn ghost hidden" type="button">Cancel Edit</button>
+                </div>
+              </form>
+            </section>
 
-    // copy latest post url logic
-    copyLatestBtn.addEventListener('click', async () => {
-      const latest = await window.dbOps.getLatestPost();
-      if(latest && latest.buttonUrl) {
-        navigator.clipboard.writeText(latest.buttonUrl);
-        refreshStatus.innerText = '📎 Copied latest button URL!';
-      } else { refreshStatus.innerText = 'No post link available.'; }
-      setTimeout(()=> refreshAllData(), 800);
-    });
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg>
+                <h2>All Links</h2>
+              </div>
+              <div id="postList" class="admin-files"></div>
+            </section>
+          </section>
 
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
-    // init
-    window.dbOps.addListener(() => refreshAllData());
-    populateDownloadSelect();
-    window.initFirebase && window.initFirebase();
-    refreshAllData();
-  })();
-</script>
-</body>
+          <!-- Analytics Tab -->
+          <section class="tab-panel" data-panel="analytics">
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                <h2>Analytics</h2>
+              </div>
+              <div id="analyticsList" class="admin-files"></div>
+            </section>
+          </section>
+
+          <!-- Downloads Tab -->
+          <section class="tab-panel" data-panel="downloads">
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <h2>Downloads</h2>
+              </div>
+              <div id="downloadAdminList" class="admin-files"></div>
+            </section>
+          </section>
+
+          <!-- Support Links Tab -->
+          <section class="tab-panel" data-panel="support">
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                <h2>Support Links</h2>
+              </div>
+              <form id="supportForm" class="admin-form">
+                <div class="form-group">
+                  <label>YouTube URL</label>
+                  <input id="youtubeLink" type="url" placeholder="YouTube URL">
+                </div>
+                <div class="form-group">
+                  <label>Telegram URL</label>
+                  <input id="telegramLink" type="url" placeholder="Telegram URL">
+                </div>
+                <div class="form-group">
+                  <label>Instagram URL</label>
+                  <input id="instagramLink" type="url" placeholder="Instagram URL">
+                </div>
+                <button class="btn primary wide" type="submit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                  Save Support Links
+                </button>
+              </form>
+            </section>
+
+            <section class="admin-panel">
+              <div class="panel-header">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <h2>Recent Users</h2>
+              </div>
+              <div id="adminUsers" class="admin-users"></div>
+            </section>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <script src="./firebase-data.js"></script>
+    <script src="./admin.js"></script>
+  </body>
 </html>
