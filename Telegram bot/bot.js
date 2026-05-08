@@ -18,15 +18,26 @@ const {
   FIREBASE_DATABASE_URL = "https://rgxbotfile-default-rtdb.firebaseio.com",
   FIREBASE_PATH = "rgx",
   REQUIRED_CHANNEL = "",
-  REQUIRED_CHANNEL_URL = ""
+  REQUIRED_CHANNEL_URL = "",
+  POLLING_ENABLED = "true"
 } = process.env;
 
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN is required. Create .env from .env.example.");
 if (!ADMIN_CHAT_ID) throw new Error("ADMIN_CHAT_ID is required.");
 
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
+const bot = new TelegramBot(BOT_TOKEN, {
+  polling: {
+    autoStart: false,
+    interval: 500,
+    params: {
+      timeout: 25,
+      allowed_updates: ["message", "callback_query"]
+    }
+  }
+});
 const states = new Map();
 const dataPath = path.resolve(__dirname, "..", "data", "files.json");
+let pollingRestartTimer = null;
 
 startHealthServer();
 ensureDataFile();
@@ -35,6 +46,19 @@ bot.setMyCommands([
   { command: "start", description: "Open RGX panel" }
 ]).catch(() => {});
 setAdminMenuButton().catch(() => {});
+
+bot.on("polling_error", (error) => {
+  const message = error?.response?.body?.description || error?.message || String(error);
+  console.error(`[polling_error] ${message}`);
+
+  if (message.includes("409 Conflict")) {
+    console.error("Another instance is using this BOT_TOKEN with getUpdates. Stop the duplicate Render/local bot, or set POLLING_ENABLED=false on the duplicate service.");
+    schedulePollingRestart(15000);
+    return;
+  }
+
+  schedulePollingRestart(8000);
+});
 
 bot.onText(/^\/start(?:\s+(.+))?$/, async (msg, match) => {
   const chatId = msg.chat.id;
@@ -1110,4 +1134,48 @@ function startHealthServer() {
   });
 }
 
-console.log("RGX Telegram bot is running.");
+async function startTelegramPolling() {
+  if (POLLING_ENABLED !== "true") {
+    console.log("Telegram polling is disabled. Health server only.");
+    return;
+  }
+
+  try {
+    await clearTelegramWebhook();
+    await bot.startPolling({ restart: true });
+    console.log("RGX Telegram polling started.");
+  } catch (error) {
+    console.error(`Telegram polling failed to start: ${error.message}`);
+    schedulePollingRestart(10000);
+  }
+}
+
+function schedulePollingRestart(delayMs) {
+  if (POLLING_ENABLED !== "true" || pollingRestartTimer) return;
+  pollingRestartTimer = setTimeout(async () => {
+    pollingRestartTimer = null;
+    try {
+      await bot.stopPolling({ cancel: true });
+    } catch (error) {
+      // It is fine if polling was already stopped.
+    }
+    await startTelegramPolling();
+  }, delayMs);
+}
+
+async function clearTelegramWebhook() {
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/deleteWebhook?drop_pending_updates=true`);
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error(`deleteWebhook failed: ${res.status} ${text}`);
+      return;
+    }
+    console.log("Telegram webhook cleared.");
+  } catch (error) {
+    console.error(`deleteWebhook request failed: ${error.message}`);
+  }
+}
+
+startTelegramPolling();
+console.log("RGX Telegram bot booted.");
