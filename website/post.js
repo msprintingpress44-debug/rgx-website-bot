@@ -26,57 +26,44 @@ function renderTemplatePost(post) {
   const buttons = normalizeButtons(post);
   const customBody = String(post.htmlContent || "").trim();
   const description = customBody || formatText(post.description || "");
-  const logo = post.logo || post.image || "";
-  const mainTitle = post.templateTitle || post.subtitle || post.title || "Unbypassable Login Key Dialog";
-  const subTitle = post.templateSubtitle || post.category || "Rahul Gamer X";
+  const mainImage = post.image || post.imageUrl || post.logo || "";
+  const mainTitle = post.templateTitle || post.title || "Rahul Gamer X Post";
+  const subTitle = post.templateSubtitle || post.category || "";
 
   return `
     <div class="dp-post-wrapper">
       <div class="dp-content-layer">
-        ${logo ? `<img class="post-logo" src="${escapeAttr(logo)}" alt="${escapeAttr(post.title || "Rahul Gamer X")}">` : ""}
         <div class="dp-main-title">${escapeHtml(mainTitle)}</div>
-        <div class="dp-sub-title">${escapeHtml(subTitle)}</div>
+        ${subTitle ? `<div class="dp-sub-title">${escapeHtml(subTitle)}</div>` : ""}
+        ${mainImage ? `<img class="post-main-image" src="${escapeAttr(mainImage)}" alt="${escapeAttr(post.title || "Rahul Gamer X")}">` : ""}
         <div class="dp-template-copy">${description}</div>
-        ${renderDefaultFeatureGrid(post)}
-        <div class="dp-dl-area">
-          ${buttons.map(renderButton).join("")}
-        </div>
+        <div class="dp-dl-area">${buttons.map(renderButton).join("")}</div>
       </div>
     </div>
   `;
 }
 
-function renderDefaultFeatureGrid(post) {
-  if (String(post.htmlContent || "").trim()) return "";
-  return `
-    <div class="dp-features-grid">
-      <div class="dp-feature-card"><span style="font-size:1.6rem;">🔒</span><div><strong>Device ID / HWID Ready</strong><br>Use this area for security details, features, or mod notes.</div></div>
-      <div class="dp-feature-card"><span style="font-size:1.6rem;">☁️</span><div><strong>Remote Panel Support</strong><br>Edit this post from the admin panel and publish instantly.</div></div>
-      <div class="dp-feature-card"><span style="font-size:1.6rem;">🎨</span><div><strong>Premium UI</strong><br>The same red dialog template stays consistent for every post.</div></div>
-      <div class="dp-feature-card"><span style="font-size:1.6rem;">🛠️</span><div><strong>${escapeHtml(post.category || "MT Manager")}</strong><br>Add your own HTML content for full control.</div></div>
-    </div>
-  `;
-}
-
 function normalizeButtons(post) {
-  const buttons = Array.isArray(post.postButtons) ? post.postButtons.filter((button) => button && button.text && button.url) : [];
+  const buttons = Array.isArray(post.postButtons)
+    ? post.postButtons.filter((button) => button && button.text && button.url)
+    : [];
   if (post.buttonUrl) {
     buttons.unshift({
-      text: post.buttonText || "Download Dialog Files",
+      text: post.buttonText || "Download Now",
       url: post.buttonUrl,
-      subtext: post.buttonSubtext || "Contains files and assets"
+      subtext: post.buttonSubtext || ""
     });
   }
-  return buttons.length ? buttons : [{ text: "Back Home", url: "./index.html", subtext: "Return to Rahul Gamer X" }];
+  return buttons;
 }
 
 function renderButton(button, index) {
   if (index === 0) {
     return `
       <a class="dp-dl-button" href="${escapeAttr(button.url)}" target="_blank" rel="noopener">
-        <div style="font-size:2rem; margin-right:18px;">📦</div>
-        <div style="flex-grow:1;"><span class="btn-head">${escapeHtml(button.text)}</span><span class="btn-sub">${escapeHtml(button.subtext || "")}</span></div>
-        <div style="font-size:1.5rem;">➡️</div>
+        <div class="dp-dl-icon">File</div>
+        <div class="dp-dl-text"><span class="btn-head">${escapeHtml(button.text)}</span><span class="btn-sub">${escapeHtml(button.subtext || "")}</span></div>
+        <div class="dp-dl-arrow">Open</div>
       </a>
     `;
   }

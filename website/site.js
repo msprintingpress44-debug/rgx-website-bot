@@ -105,31 +105,19 @@ function renderTemplatePost(post) {
   const buttons = normalizeButtons(post);
   const customBody = String(post.htmlContent || "").trim();
   const description = customBody || formatText(post.description || "");
-  const logo = post.logo || post.image || "";
-  const mainTitle = post.templateTitle || post.subtitle || post.title || "Unbypassable Login Key Dialog";
+  const mainImage = post.image || post.imageUrl || post.logo || "";
+  const mainTitle = post.templateTitle || post.title || "Rahul Gamer X Post";
   const subTitle = post.templateSubtitle || post.category || "Rahul Gamer X";
 
   return `
     <div class="dp-post-wrapper">
       <div class="dp-content-layer">
-        ${logo ? `<img class="post-logo" src="${escapeAttr(logo)}" alt="${escapeAttr(post.title || "Rahul Gamer X")}">` : ""}
         <div class="dp-main-title">${escapeHtml(mainTitle)}</div>
-        <div class="dp-sub-title">${escapeHtml(subTitle)}</div>
+        ${subTitle ? `<div class="dp-sub-title">${escapeHtml(subTitle)}</div>` : ""}
+        ${mainImage ? `<img class="post-main-image" src="${escapeAttr(mainImage)}" alt="${escapeAttr(post.title || "Rahul Gamer X")}">` : ""}
         <div class="dp-template-copy">${description}</div>
-        ${customBody ? "" : renderDefaultFeatureGrid(post)}
         <div class="dp-dl-area">${buttons.map(renderTemplateButton).join("")}</div>
       </div>
-    </div>
-  `;
-}
-
-function renderDefaultFeatureGrid(post) {
-  return `
-    <div class="dp-features-grid">
-      <div class="dp-feature-card"><span>🔒</span><div><strong>Device ID / HWID Ready</strong><br>Use this area for security details, features, or mod notes.</div></div>
-      <div class="dp-feature-card"><span>☁️</span><div><strong>Remote Panel Support</strong><br>Edit this post from the admin panel and publish instantly.</div></div>
-      <div class="dp-feature-card"><span>🎨</span><div><strong>Premium UI</strong><br>The same red dialog template stays consistent for every post.</div></div>
-      <div class="dp-feature-card"><span>🛠️</span><div><strong>${escapeHtml(post.category || "MT Manager")}</strong><br>Add your own HTML content for full control.</div></div>
     </div>
   `;
 }
@@ -143,21 +131,21 @@ function normalizeButtons(post) {
 
   if (post.buttonUrl) {
     buttons.unshift({
-      text: post.buttonText || "Download Dialog Files",
+      text: post.buttonText || "Download Now",
       url: post.buttonUrl,
       subtext: post.buttonSubtext || "Contains files and assets"
     });
   }
-  return buttons.length ? buttons : [{ text: "Back Home", url: "./index.html", subtext: "Return to Rahul Gamer X" }];
+  return buttons;
 }
 
 function renderTemplateButton(button, index) {
   if (index === 0) {
     return `
       <a class="dp-dl-button" href="${escapeAttr(button.url)}" target="_blank" rel="noopener">
-        <div class="dp-dl-icon">📦</div>
+        <div class="dp-dl-icon">File</div>
         <div class="dp-dl-text"><span class="btn-head">${escapeHtml(button.text)}</span><span class="btn-sub">${escapeHtml(button.subtext || "")}</span></div>
-        <div class="dp-dl-arrow">➡️</div>
+        <div class="dp-dl-arrow">Open</div>
       </a>
     `;
   }
@@ -170,18 +158,16 @@ function injectInlinePostStyles() {
   style.id = "rgx-inline-post-styles";
   style.textContent = `
     .rgx-inline-post .pT h1{margin-bottom:22px}
-    .dp-post-wrapper{background:#050505;border-radius:20px;padding:clamp(18px,4vw,30px);border:1px solid rgba(255,42,42,.15);box-shadow:0 24px 55px rgba(0,0,0,.55);color:#f8fafc;overflow:hidden}
-    .post-logo{display:block;width:min(170px,45vw);margin:0 auto 18px;border-radius:22px;box-shadow:0 16px 38px rgba(0,0,0,.35)}
-    .dp-main-title{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;text-align:center;color:#fff}
-    .dp-sub-title{text-align:center;color:#ff2a2a;font-size:.95em;margin-bottom:30px;letter-spacing:.08em;text-transform:uppercase}
-    .dp-template-copy,.dp-template-copy p{color:#e7ecf8}
-    .dp-features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px;margin:35px 0}
-    .dp-feature-card{display:flex;gap:15px;background:#121212;padding:20px;border-radius:14px;border:1px solid rgba(255,42,42,.15)}
-    .dp-feature-card>span{font-size:1.6rem}
+    .dp-post-wrapper{background:#050505;border-radius:20px;padding:clamp(18px,4vw,34px);border:1px solid rgba(255,42,42,.15);box-shadow:0 24px 55px rgba(0,0,0,.55);color:#f8fafc;overflow:hidden}
+    .dp-main-title{font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:850;text-align:center;color:#fff;line-height:1.15;margin-bottom:10px}
+    .dp-sub-title{text-align:center;color:#ff4d4d;font-size:.95em;margin-bottom:24px;letter-spacing:.08em;text-transform:uppercase}
+    .post-main-image{display:block;width:min(100%,760px);max-height:520px;object-fit:contain;margin:0 auto 28px;border-radius:22px;box-shadow:0 22px 50px rgba(0,0,0,.5);background:#0f1117}
+    .dp-template-copy,.dp-template-copy p{color:#e7ecf8;font-size:1.05rem;line-height:1.7}
+    .dp-template-copy{margin:0 auto;max-width:760px}
     .dp-dl-area{display:flex;flex-direction:column;gap:14px;margin-top:28px}
-    .dp-dl-button{display:flex;align-items:center;background:#121212;padding:16px 25px;border-radius:16px;text-decoration:none;border:1px solid rgba(255,42,42,.15);transition:.3s;color:white}
+    .dp-dl-button{display:flex;align-items:center;background:#121212;padding:16px 25px;border-radius:16px;text-decoration:none;border:1px solid rgba(255,42,42,.15);transition:.3s;color:white;max-width:760px;width:100%;margin:0 auto}
     .dp-dl-button:hover{border-color:#ff2a2a;background:rgba(255,42,42,.1)}
-    .dp-dl-icon{font-size:2rem;margin-right:18px}.dp-dl-text{flex-grow:1}.dp-dl-arrow{font-size:1.5rem}
+    .dp-dl-icon{font-size:.8rem;margin-right:18px;background:#ef1f2d;color:#fff;padding:8px 10px;border-radius:10px}.dp-dl-text{flex-grow:1}.dp-dl-arrow{font-size:.85rem;color:#ff8585}
     .btn-head{font-weight:800;display:block}.btn-sub{color:#ff8585;font-size:.85em;display:block}
     .dp-secondary-link{align-self:center;padding:10px 22px;background:rgba(255,255,255,.03);border-radius:50px;color:#8b9bb4;text-decoration:none}
   `;

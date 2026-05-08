@@ -72,25 +72,29 @@
         font-weight: 500;
       }
       .pE { font-size: var(--postBody-font); line-height: 1.7; }
-      .post-logo {
+      .post-main-image {
         display: block;
-        width: min(170px, 45vw);
-        margin: 0 auto 18px;
+        width: min(100%, 760px);
+        max-height: 520px;
+        object-fit: contain;
+        margin: 0 auto 28px;
         border-radius: 22px;
-        box-shadow: 0 16px 38px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 22px 50px rgba(0, 0, 0, 0.5);
+        background: #0f1117;
       }
       .dp-post-wrapper {
         background: #050505;
         border-radius: 20px;
-        padding: clamp(18px, 4vw, 30px);
+        padding: clamp(18px, 4vw, 34px);
         border: 1px solid rgba(255, 42, 42, 0.15);
         box-shadow: 0 24px 55px rgba(0, 0, 0, 0.55);
         color: #f8fafc;
         overflow: hidden;
       }
-      .dp-main-title { font-size: clamp(1.7rem, 4vw, 2.4rem); font-weight: 800; text-align: center; color: #fff; }
-      .dp-sub-title { text-align: center; color: #ff2a2a; font-size: 0.95em; margin-bottom: 30px; letter-spacing: 0.08em; text-transform: uppercase; }
-      .dp-post-wrapper p { color: #e7ecf8; }
+      .dp-main-title { font-size: clamp(1.8rem, 4.5vw, 2.8rem); font-weight: 850; text-align: center; color: #fff; line-height: 1.15; margin-bottom: 10px; }
+      .dp-sub-title { text-align: center; color: #ff4d4d; font-size: 0.95em; margin-bottom: 24px; letter-spacing: 0.08em; text-transform: uppercase; }
+      .dp-template-copy, .dp-template-copy p { color: #e7ecf8; font-size: 1.05rem; line-height: 1.7; }
+      .dp-template-copy { margin: 0 auto; max-width: 760px; }
       .dp-premium-ad {
         background: linear-gradient(45deg, #1a0000, #330000);
         border: 2px solid #ff2a2a;
@@ -108,33 +112,24 @@
         display: inline-block;
         font-weight: 700;
       }
-      .dp-features-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-        gap: 15px;
-        margin: 35px 0;
-      }
-      .dp-feature-card {
-        display: flex;
-        gap: 15px;
-        background: #121212;
-        padding: 20px;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 42, 42, 0.15);
-      }
-      .dp-dl-area { margin-top: 28px; }
+      .dp-dl-area { display: flex; flex-direction: column; gap: 14px; margin-top: 28px; }
       .dp-dl-button {
         display: flex;
         align-items: center;
         background: #121212;
         padding: 16px 25px;
         border-radius: 16px;
-        margin-bottom: 15px;
+        max-width: 760px;
+        width: 100%;
+        margin: 0 auto;
         text-decoration: none;
         border: 1px solid rgba(255, 42, 42, 0.15);
         transition: 0.3s;
         color: white;
       }
+      .dp-dl-icon { font-size: 0.8rem; margin-right: 18px; background: #ef1f2d; color: #fff; padding: 8px 10px; border-radius: 10px; }
+      .dp-dl-text { flex-grow: 1; }
+      .dp-dl-arrow { font-size: 0.85rem; color: #ff8585; }
       .dp-dl-button:hover { border-color: #ff2a2a; background: rgba(255, 42, 42, 0.1); }
       .btn-head { font-weight: 800; display: block; }
       .btn-sub { color: #ff8585; font-size: 0.85em; display: block; }

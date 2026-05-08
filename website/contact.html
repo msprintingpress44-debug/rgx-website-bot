@@ -121,7 +121,7 @@
       padding: 2rem 2rem 2.8rem;
       box-shadow: 0 20px 35px -12px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.02);
       transition: transform 0.2s ease, box-shadow 0.2s;
-      border: 1px solid rgba(255,255,255,0.7);
+      border: 1px solid rgba(148, 163, 184, 0.22);
     }
 
     .post-article:hover {
@@ -146,7 +146,7 @@
       font-weight: 800;
       line-height: 1.2;
       letter-spacing: -0.02em;
-      background: linear-gradient(130deg, #1e2a3a, #bc3f2c);
+      background: linear-gradient(130deg, #f8fafc, #ff725e);
       background-clip: text;
       -webkit-background-clip: text;
       color: transparent;
@@ -155,7 +155,7 @@
 
     .post-article p {
       font-size: 1.12rem;
-      color: #2c3e4e;
+      color: #d9e4f8;
       margin-bottom: 2rem;
       line-height: 1.5;
       border-left: 3px solid #e34d3b30;
@@ -174,16 +174,16 @@
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      background: rgba(15, 19, 30, 0.9);
+      background: rgba(3, 8, 23, 0.88);
       padding: 0.85rem 1.8rem;
       border-radius: 60px;
       font-weight: 600;
       font-size: 1rem;
       text-decoration: none;
-      color: #1e2a3a;
+      color: #f8fafc;
       transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-      box-shadow: 0 4px 10px rgba(0,0,0,0.02);
-      border: 1px solid #eef2f5;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.28);
+      border: 1px solid rgba(148, 163, 184, 0.3);
       backdrop-filter: blur(2px);
     }
 
@@ -229,6 +229,18 @@
       color: white;
       transform: translateY(-3px);
       box-shadow: 0 12px 20px -8px rgba(214, 36, 159, 0.4);
+    }
+    .popular-list a[data-social="telegram"] {
+      border-color: rgba(31, 142, 241, 0.55);
+      box-shadow: 0 10px 24px -12px rgba(31, 142, 241, 0.9);
+    }
+    .popular-list a[data-social="youtube"] {
+      border-color: rgba(255, 0, 0, 0.55);
+      box-shadow: 0 10px 24px -12px rgba(255, 0, 0, 0.9);
+    }
+    .popular-list a[data-social="instagram"] {
+      border-color: rgba(214, 36, 159, 0.55);
+      box-shadow: 0 10px 24px -12px rgba(214, 36, 159, 0.9);
     }
 
     /* sidebar modern glasscard */

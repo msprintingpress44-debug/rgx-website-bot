@@ -134,11 +134,11 @@ async function savePost(formData) {
     subtitle: String(formData.get("subtitle") || "").trim(),
     description: String(formData.get("description") || "").trim(),
     htmlContent: String(formData.get("htmlContent") || "").trim(),
-    logo: logoUrl || logoFromUpload || (existing && existing.logo) || "",
+    logo: logoFromUpload || logoUrl || (existing && existing.logo) || "",
     templateTitle: String(formData.get("templateTitle") || "").trim(),
     templateSubtitle: String(formData.get("templateSubtitle") || "").trim(),
     postButtons: parseButtons(String(formData.get("postButtons") || "")),
-    image: imageUrl || imageFromUpload || (existing && existing.image) || "",
+    image: imageFromUpload || imageUrl || (existing && existing.image) || "",
     buttonText: String(formData.get("buttonText") || "Download Now").trim(),
     buttonUrl: String(formData.get("buttonUrl") || "").trim(),
     buttonColor: String(formData.get("buttonColor") || "#ef1f2d").trim(),
@@ -146,8 +146,8 @@ async function savePost(formData) {
     updatedAt: new Date().toISOString()
   };
 
-  if (!post.title || !post.buttonUrl) {
-    alert("Title and button link required.");
+  if (!post.title) {
+    alert("Title required.");
     return;
   }
 
@@ -324,7 +324,7 @@ async function writeData() {
 }
 
 function postLink(id) {
-  return `${location.origin}/post.html?id=${encodeURIComponent(id)}`;
+  return `${location.origin}/?post=${encodeURIComponent(id)}`;
 }
 
 function fillPostForm(post) {

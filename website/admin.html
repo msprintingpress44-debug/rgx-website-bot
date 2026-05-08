@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>RGX Admin — Command Center</title>
+  <title>RGX Admin â€” Command Center</title>
   <meta name="description" content="RGX website post admin with upgraded UI, same core logic.">
   <!-- Google Font + subtle baseline -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
@@ -337,7 +337,7 @@
     <h1>Admin Access</h1>
     <p>Enter master password to manage posts, links & analytics</p>
     <input id="adminPassword" type="password" placeholder="Password" autocomplete="off">
-    <button id="loginBtn" class="btn primary wide" type="button">Login →</button>
+    <button id="loginBtn" class="btn primary wide" type="button">Login â†’</button>
     <p id="loginError" class="admin-error"></p>
   </section>
 
@@ -345,12 +345,12 @@
   <section id="adminApp" class="hidden admin-app">
     <aside class="admin-nav">
       <span class="blog-brand">RGX</span>
-      <button class="admin-tab active" data-tab="dashboard" type="button">📊 Dashboard</button>
-      <button class="admin-tab" data-tab="posts" type="button">✍️ Posts</button>
-      <button class="admin-tab" data-tab="analytics" type="button">📈 Analytics</button>
-      <button class="admin-tab" data-tab="downloads" type="button">📦 Downloads</button>
-      <button class="admin-tab" data-tab="support" type="button">🔗 Support Links</button>
-      <button id="logoutBtn" class="admin-tab" type="button">🚪 Logout</button>
+      <button class="admin-tab active" data-tab="dashboard" type="button">ðŸ“Š Dashboard</button>
+      <button class="admin-tab" data-tab="posts" type="button">âœï¸ Posts</button>
+      <button class="admin-tab" data-tab="analytics" type="button">ðŸ“ˆ Analytics</button>
+      <button class="admin-tab" data-tab="downloads" type="button">ðŸ“¦ Downloads</button>
+      <button class="admin-tab" data-tab="support" type="button">ðŸ”— Support Links</button>
+      <button id="logoutBtn" class="admin-tab" type="button">ðŸšª Logout</button>
     </aside>
 
     <section class="admin-content">
@@ -360,8 +360,8 @@
           <h1>Admin Studio</h1>
         </div>
         <div class="admin-toolbar">
-          <button class="btn ghost" id="refreshAdmin" type="button">⟳ Refresh</button>
-          <button class="btn ghost" id="copyLatest" type="button">📋 Copy Latest</button>
+          <button class="btn ghost" id="refreshAdmin" type="button">âŸ³ Refresh</button>
+          <button class="btn ghost" id="copyLatest" type="button">ðŸ“‹ Copy Latest</button>
           <span id="refreshStatus">Ready</span>
         </div>
       </div>
@@ -372,7 +372,7 @@
       <!-- PANELS -->
       <div class="tab-panel active" data-panel="dashboard">
         <section class="admin-panel">
-          <h2>✨ Overview</h2>
+          <h2>âœ¨ Overview</h2>
           <p class="muted" style="color:#b9c3e6;">Manage posts, downloads, users & social links from unified dashboard. Changes reflect instantly on RGX frontend.</p>
         </section>
       </div>
@@ -380,7 +380,7 @@
       <div class="tab-panel" data-panel="posts">
         <section class="admin-panel">
           <div class="section-head compact-head">
-            <p class="kicker">✍️ Create/Edit</p>
+            <p class="kicker">âœï¸ Create/Edit</p>
             <h2>New Post</h2>
           </div>
           <form id="postForm" class="admin-form">
@@ -388,17 +388,17 @@
             <input name="category" type="text" placeholder="Category / label" value="Downloads">
             <input name="subtitle" type="text" placeholder="Short subtitle">
             <input name="image" type="file" accept="image/*">
-            <input id="imageUrl" name="imageUrl" type="url" placeholder="Image URL (optional, better than large upload)">
+            <input id="imageUrl" name="imageUrl" type="url" placeholder="Main post image URL (or upload image above)">
             <input name="logo" type="file" accept="image/*">
             <input id="logoUrl" name="logoUrl" type="url" placeholder="Post logo URL (optional)">
-            <input name="templateTitle" type="text" placeholder="Inside template title, e.g. Unbypassable Login Key Dialog">
-            <input name="templateSubtitle" type="text" placeholder="Inside template subtitle">
+            <input name="templateTitle" type="text" placeholder="Template title (optional, defaults to post title)">
+            <input name="templateSubtitle" type="text" placeholder="Small subtitle (optional)">
             <textarea name="description" rows="7" placeholder="Description"></textarea>
             <textarea name="htmlContent" rows="9" placeholder="Post HTML content (optional). Paste your full custom post body HTML here."></textarea>
-            <textarea name="postButtons" rows="4" placeholder="Extra buttons, one per line: Button Name | Link | Small text"></textarea>
+            <textarea name="postButtons" rows="4" placeholder="Extra optional buttons, one per line: Button Name | Link | Small text"></textarea>
             <select id="fileLinkSelect"></select>
-            <input id="buttonUrl" name="buttonUrl" type="url" placeholder="Button link / generated bot download link" required>
-            <input name="buttonText" type="text" placeholder="Button text" value="Download Now">
+            <input id="buttonUrl" name="buttonUrl" type="url" placeholder="Download button link (optional, auto-filled from selected file)">
+            <input name="buttonText" type="text" placeholder="Download button text" value="Download Now">
             <label class="color-row">Button Color <input name="buttonColor" type="color" value="#e11d2e"></label>
             <label class="color-row">Pin this post <input name="pinnedPost" type="checkbox"></label>
             <input id="editingPostId" name="editingPostId" type="hidden">
@@ -410,38 +410,38 @@
         </section>
 
         <section class="admin-panel">
-          <h2>📋 All Posts / Links</h2>
+          <h2>ðŸ“‹ All Posts / Links</h2>
           <div id="postList" class="admin-files"></div>
         </section>
       </div>
 
       <div class="tab-panel" data-panel="analytics">
         <section class="admin-panel">
-          <h2>📊 Analytics Events (clicks)</h2>
+          <h2>ðŸ“Š Analytics Events (clicks)</h2>
           <div id="analyticsList" class="admin-files"></div>
         </section>
       </div>
 
       <div class="tab-panel" data-panel="downloads">
         <section class="admin-panel">
-          <h2>📁 Manage Download Links</h2>
+          <h2>ðŸ“ Manage Download Links</h2>
           <div id="downloadAdminList" class="admin-files"></div>
         </section>
       </div>
 
       <div class="tab-panel" data-panel="support">
         <section class="admin-panel">
-          <h2>🔗 Support / Social Links</h2>
+          <h2>ðŸ”— Support / Social Links</h2>
           <form id="supportForm" class="admin-form">
             <input id="youtubeLink" type="url" placeholder="YouTube URL" autocomplete="off">
             <input id="telegramLink" type="url" placeholder="Telegram URL">
             <input id="instagramLink" type="url" placeholder="Instagram URL">
             <input id="videoLink" type="url" placeholder="Video Link / YouTube video URL">
-            <button class="btn primary wide" type="submit">💾 Save Support Links</button>
+            <button class="btn primary wide" type="submit">ðŸ’¾ Save Support Links</button>
           </form>
         </section>
         <section class="admin-panel">
-          <h2>👥 Recent Users (activity)</h2>
+          <h2>ðŸ‘¥ Recent Users (activity)</h2>
           <div id="adminUsers" class="admin-users" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
         </section>
       </div>
@@ -449,278 +449,6 @@
   </section>
 </main>
 
-<!-- Stub firebase-data.js and admin.js – original logic preserved, but UI binding matches -->
-<script>
-  // --------------------- STUB FIREBASE-DATA.JS ---------------------
-  // Emulates original Firebase Data service (same methods)
-  window.dbOps = {
-    posts: [], downloadLinks: [], analytics: [], support: {}, users: [],
-    listeners: [],
-    addListener(cb) { this.listeners.push(cb); },
-    notify() { this.listeners.forEach(cb => cb()); },
-    async fetchPosts() { return this.posts; },
-    async fetchDownloads() { return this.downloadLinks; },
-    async fetchAnalytics() { return this.analytics; },
-    async fetchSupport() { return this.support; },
-    async fetchUsers() { return this.users; },
-    async addPost(post) { this.posts.unshift({ ...post, id: Date.now().toString() }); this.notify(); return true; },
-    async updatePost(id, data) { const idx = this.posts.findIndex(p => p.id == id); if(idx!==-1) this.posts[idx] = {...this.posts[idx], ...data}; this.notify(); return true; },
-    async deletePost(id) { this.posts = this.posts.filter(p => p.id != id); this.notify(); return true; },
-    async addDownloadLink(link) { this.downloadLinks.push({ ...link, id: Date.now().toString() }); this.notify(); return true; },
-    async deleteDownload(id) { this.downloadLinks = this.downloadLinks.filter(d => d.id != id); this.notify(); return true; },
-    async saveSupportLinks(links) { this.support = links; this.notify(); return true; },
-    async recordClick(postId) { const found = this.analytics.find(a => a.postId == postId); if(found) found.clicks = (found.clicks||0)+1; else this.analytics.push({ postId, clicks:1, last: new Date().toISOString() }); this.notify(); },
-    getLatestPost() { return this.posts[0] || null; }
-  };
-  // mock data
-  window.dbOps.posts = [{ id:"p1", title:"RGX Tool", category:"Downloads", subtitle:"pro", description:"latest release", buttonUrl:"https://example.com/dl", buttonText:"Download", buttonColor:"#e11d2e", imageUrl:"" }];
-  window.dbOps.downloadLinks = [{ id:"dl1", name:"RGX Setup v2", url:"https://get.rgx.com/setup" }];
-  window.dbOps.analytics = [{ postId:"p1", clicks:124 }];
-  window.dbOps.support = { youtube:"https://youtube.com/@rgx", telegram:"https://t.me/rgx", instagram:"https://instagram.com/rgx" };
-  window.dbOps.users = [{ name:"visitor_7xx", lastActive:"2 min ago" }, { name:"rgx_fan", lastActive:"1 hour ago" }];
-  // Admin auth (same logic: password = "admin123")
-  window.adminAuth = { login(pwd) { return pwd === "admin123"; } };
-  // initialize sync
-  if(typeof window.initFirebase === 'undefined') window.initFirebase = ()=>{};
-</script>
-
-<script>
-  // --------------------- ADMIN.JS (full preserved logic + UI upgrade) ---------------------
-  (function() {
-    // DOM elements
-    const loginSection = document.getElementById('adminLogin');
-    const appSection = document.getElementById('adminApp');
-    const loginBtn = document.getElementById('loginBtn');
-    const adminPassword = document.getElementById('adminPassword');
-    const loginErrorSpan = document.getElementById('loginError');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const refreshBtn = document.getElementById('refreshAdmin');
-    const copyLatestBtn = document.getElementById('copyLatest');
-    const refreshStatus = document.getElementById('refreshStatus');
-    const statsContainer = document.getElementById('stats');
-    const postListDiv = document.getElementById('postList');
-    const analyticsListDiv = document.getElementById('analyticsList');
-    const downloadAdminList = document.getElementById('downloadAdminList');
-    const adminUsersDiv = document.getElementById('adminUsers');
-    const supportForm = document.getElementById('supportForm');
-    const youtubeLink = document.getElementById('youtubeLink');
-    const telegramLink = document.getElementById('telegramLink');
-    const instagramLink = document.getElementById('instagramLink');
-    const videoLink = document.getElementById('videoLink');
-    const postForm = document.getElementById('postForm');
-    const editingPostIdInput = document.getElementById('editingPostId');
-    const cancelEditBtn = document.getElementById('cancelEditBtn');
-    const fileLinkSelect = document.getElementById('fileLinkSelect');
-
-    // Tab handling
-    const tabs = document.querySelectorAll('.admin-tab');
-    const panels = document.querySelectorAll('.tab-panel');
-    let currentEditId = null;
-
-    function switchTab(tabId) {
-      panels.forEach(panel => panel.classList.remove('active'));
-      const activePanel = document.querySelector(`.tab-panel[data-panel="${tabId}"]`);
-      if(activePanel) activePanel.classList.add('active');
-      tabs.forEach(t => t.classList.remove('active'));
-      const activeTabBtn = document.querySelector(`.admin-tab[data-tab="${tabId}"]`);
-      if(activeTabBtn) activeTabBtn.classList.add('active');
-    }
-
-    tabs.forEach(tab => {
-      tab.addEventListener('click', (e) => {
-        const tabVal = tab.getAttribute('data-tab');
-        if(tabVal === 'logout') return;
-        if(tabVal) switchTab(tabVal);
-      });
-    });
-
-    // Login handler
-    function handleLogin() {
-      const pwd = adminPassword.value;
-      if(window.adminAuth && window.adminAuth.login(pwd)) {
-        loginSection.classList.add('hidden');
-        appSection.classList.remove('hidden');
-        loginErrorSpan.innerText = '';
-        refreshAllData();
-      } else {
-        loginErrorSpan.innerText = 'Access denied. Invalid password.';
-      }
-    }
-    loginBtn.addEventListener('click', handleLogin);
-    adminPassword.addEventListener('keypress', (e) => { if(e.key === 'Enter') handleLogin(); });
-    logoutBtn.addEventListener('click', () => {
-      loginSection.classList.remove('hidden');
-      appSection.classList.add('hidden');
-      adminPassword.value = '';
-      loginErrorSpan.innerText = '';
-    });
-
-    // Refresh ui from dbOps
-    async function refreshAllData() {
-      refreshStatus.innerText = 'Syncing...';
-      await Promise.all([
-        renderStats(),
-        renderPosts(),
-        renderAnalytics(),
-        renderDownloads(),
-        renderUsers(),
-        loadSupportLinks()
-      ]);
-      refreshStatus.innerText = `Updated ${new Date().toLocaleTimeString()}`;
-    }
-    refreshBtn.addEventListener('click', refreshAllData);
-
-    // Stats
-    async function renderStats() {
-      const posts = await window.dbOps.fetchPosts();
-      const downloads = await window.dbOps.fetchDownloads();
-      const analytics = await window.dbOps.fetchAnalytics();
-      const totalClicks = analytics.reduce((sum,a)=> sum + (a.clicks||0),0);
-      statsContainer.innerHTML = `
-        <div class="stat-card"><h3>📄 Total Posts</h3><div class="stat-number">${posts.length}</div></div>
-        <div class="stat-card"><h3>📎 Downloads</h3><div class="stat-number">${downloads.length}</div></div>
-        <div class="stat-card"><h3>👆 Total Clicks</h3><div class="stat-number">${totalClicks}</div></div>
-        <div class="stat-card"><h3>⚡ Latest Post</h3><div class="stat-number">${posts[0]?.title?.slice(0,15) || '—'}</div></div>
-      `;
-    }
-
-    // Render posts (full CRUD)
-    async function renderPosts() {
-      const posts = await window.dbOps.fetchPosts();
-      if(!postListDiv) return;
-      if(posts.length === 0) { postListDiv.innerHTML = '<div class="post-card">No posts yet. Create one!</div>'; return; }
-      postListDiv.innerHTML = posts.map(post => `
-        <div class="post-card">
-          <div class="post-info"><strong>${escapeHtml(post.title)}</strong> <span class="badge">${post.category || 'general'}</span><br><small>🔗 ${post.buttonUrl?.slice(0,40)}</small></div>
-          <div class="post-actions">
-            <button class="small-btn edit-post" data-id="${post.id}">✏️ Edit</button>
-            <button class="small-btn danger delete-post" data-id="${post.id}">🗑️ Delete</button>
-          </div>
-        </div>
-      `).join('');
-      document.querySelectorAll('.edit-post').forEach(btn => btn.addEventListener('click', (e) => editPost(btn.dataset.id)));
-      document.querySelectorAll('.delete-post').forEach(btn => btn.addEventListener('click', async (e) => { if(confirm('Delete post?')) await window.dbOps.deletePost(btn.dataset.id); refreshAllData(); }));
-    }
-    async function editPost(id) {
-      const posts = await window.dbOps.fetchPosts();
-      const post = posts.find(p => p.id == id);
-      if(post) {
-        document.querySelector('#postForm [name="title"]').value = post.title || '';
-        document.querySelector('#postForm [name="category"]').value = post.category || '';
-        document.querySelector('#postForm [name="subtitle"]').value = post.subtitle || '';
-        document.querySelector('#postForm [name="templateTitle"]').value = post.templateTitle || '';
-        document.querySelector('#postForm [name="templateSubtitle"]').value = post.templateSubtitle || '';
-        document.querySelector('#postForm textarea[name="description"]').value = post.description || '';
-        document.querySelector('#postForm textarea[name="htmlContent"]').value = post.htmlContent || '';
-        document.querySelector('#postForm textarea[name="postButtons"]').value = Array.isArray(post.postButtons) ? post.postButtons.map(button => [button.text, button.url, button.subtext].filter(Boolean).join(' | ')).join('\n') : '';
-        document.querySelector('#postForm [name="buttonUrl"]').value = post.buttonUrl || '';
-        document.querySelector('#postForm [name="buttonText"]').value = post.buttonText || '';
-        document.querySelector('#postForm [name="buttonColor"]').value = post.buttonColor || '#e11d2e';
-        document.querySelector('#postForm [name="pinnedPost"]').checked = !!post.pinned;
-        document.getElementById('imageUrl').value = post.imageUrl || '';
-        document.getElementById('logoUrl').value = post.logo || '';
-        editingPostIdInput.value = post.id;
-        currentEditId = post.id;
-        cancelEditBtn.classList.remove('hidden');
-        document.querySelector('#publishBtn').innerText = '✏️ Update Post';
-      }
-    }
-    cancelEditBtn.addEventListener('click', () => {
-      postForm.reset();
-      editingPostIdInput.value = '';
-      currentEditId = null;
-      cancelEditBtn.classList.add('hidden');
-      document.querySelector('#publishBtn').innerText = 'Publish Post';
-    });
-
-    // Populate download select for posts
-    async function populateDownloadSelect() {
-      const downloads = await window.dbOps.fetchDownloads();
-      fileLinkSelect.innerHTML = '<option value="">-- Select existing download link (optional) --</option>' + downloads.map(d => `<option value="${d.url}">${d.name}</option>`).join('');
-    }
-
-    // Post form submit
-    postForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const formData = new FormData(postForm);
-      const title = formData.get('title');
-      const category = formData.get('category');
-      const subtitle = formData.get('subtitle');
-      const description = formData.get('description');
-      const htmlContent = formData.get('htmlContent');
-      const templateTitle = formData.get('templateTitle');
-      const templateSubtitle = formData.get('templateSubtitle');
-      const postButtons = (formData.get('postButtons') || '').split(/\r?\n/).map(line => {
-        const parts = line.split('|').map(part => part.trim());
-        return { text: parts[0], url: parts[1], subtext: parts[2] };
-      }).filter(button => button.text && button.url);
-      let buttonUrl = formData.get('buttonUrl');
-      const selectedLink = fileLinkSelect.value;
-      if(selectedLink && !buttonUrl) buttonUrl = selectedLink;
-      const buttonText = formData.get('buttonText');
-      const buttonColor = formData.get('buttonColor');
-      const pinned = formData.get('pinnedPost') === 'on';
-      const imageUrl = document.getElementById('imageUrl').value;
-      const editingId = editingPostIdInput.value;
-      const postData = { title, category, subtitle, description, htmlContent, templateTitle, templateSubtitle, postButtons, buttonUrl, buttonText, buttonColor, imageUrl, image: imageUrl, logo: document.getElementById('logoUrl').value, pinned, timestamp: new Date().toISOString() };
-      if(editingId) {
-        await window.dbOps.updatePost(editingId, postData);
-        cancelEditBtn.click();
-      } else {
-        await window.dbOps.addPost(postData);
-        postForm.reset();
-      }
-      refreshAllData();
-      switchTab('posts');
-    });
-
-    // Analytics render
-    async function renderAnalytics() {
-      const analytics = await window.dbOps.fetchAnalytics();
-      const posts = await window.dbOps.fetchPosts();
-      analyticsListDiv.innerHTML = analytics.length ? analytics.map(a => `<div class="post-card"><span>📌 Post ID: ${a.postId} | Clicks: ${a.clicks} | Last: ${a.last || '—'}</span></div>`).join('') : '<div class="post-card">No click analytics yet.</div>';
-    }
-    async function renderDownloads() {
-      const downloads = await window.dbOps.fetchDownloads();
-      downloadAdminList.innerHTML = downloads.map(d => `<div class="post-card"><span>📎 ${escapeHtml(d.name)}<br><small>${d.url}</small></span><button class="small-btn danger del-dl" data-id="${d.id}">Remove</button></div>`).join('');
-      document.querySelectorAll('.del-dl').forEach(btn => btn.addEventListener('click', async (e) => { await window.dbOps.deleteDownload(btn.dataset.id); refreshAllData(); }));
-    }
-    async function renderUsers() {
-      const users = await window.dbOps.fetchUsers();
-      adminUsersDiv.innerHTML = users.map(u => `<div class="user-item">👤 ${escapeHtml(u.name)} <span class="badge">${u.lastActive}</span></div>`).join('');
-    }
-    async function loadSupportLinks() {
-      const links = await window.dbOps.fetchSupport();
-      youtubeLink.value = links.youtube || '';
-      telegramLink.value = links.telegram || '';
-      instagramLink.value = links.instagram || '';
-      videoLink.value = links.video || links.videoLink || '';
-    }
-    supportForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await window.dbOps.saveSupportLinks({ youtube: youtubeLink.value, telegram: telegramLink.value, instagram: instagramLink.value, video: videoLink.value });
-      refreshStatus.innerText = 'Support links saved!';
-      setTimeout(()=>refreshAllData(), 400);
-    });
-
-    // copy latest post url logic
-    copyLatestBtn.addEventListener('click', async () => {
-      const latest = await window.dbOps.getLatestPost();
-      if(latest && latest.buttonUrl) {
-        navigator.clipboard.writeText(latest.buttonUrl);
-        refreshStatus.innerText = '📎 Copied latest button URL!';
-      } else { refreshStatus.innerText = 'No post link available.'; }
-      setTimeout(()=> refreshAllData(), 800);
-    });
-
-    function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, function(m){ if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
-    // init
-    window.dbOps.addListener(() => refreshAllData());
-    populateDownloadSelect();
-    window.initFirebase && window.initFirebase();
-    refreshAllData();
-  })();
-</script>
 <script src="./firebase-data.js"></script>
 <script src="./admin.js"></script>
 </body>
