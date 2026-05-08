@@ -1,5 +1,7 @@
 .env
 node_modules/
+dist/
+website/dist/
 npm-debug.log*
 Telegram bot/data/
 Telegram bot/bot.log

@@ -10,4 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping bot health endpoint
-        run: curl -fsS --max-time 20 https://rgx-telegram-bot.onrender.com/health || true
+        env:
+          RENDER_HEALTH_URL: ${{ vars.RENDER_HEALTH_URL || 'https://rgx-telegram-bot.onrender.com/health' }}
+        run: curl -fsS --max-time 20 "$RENDER_HEALTH_URL" || true
