@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RGX Download</title>
+    <meta name="description" content="RGX verified download page.">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body class="download-body">
+    <header class="topbar compact">
+      <a class="brand" href="./index.html" aria-label="RGX home">
+        <span class="brand-mark">RGX</span>
+      </a>
+      <nav class="topnav" aria-label="Primary links">
+        <a href="./index.html#channels">Channels</a>
+        <a href="./index.html#downloads">Downloads</a>
+      </nav>
+    </header>
+
+    <main class="download-page">
+      <section class="download-panel">
+        <div class="download-status">RGX Secure Download</div>
+        <div id="fileVisual" class="file-visual"><span>ZIP</span></div>
+        <p class="kicker">Premium File</p>
+        <h1 id="fileTitle">Preparing download...</h1>
+        <p id="fileMeta" class="muted">Please wait while the verified link loads.</p>
+        <p id="fileCaption" class="caption"></p>
+
+        <div class="timer-wrap" aria-live="polite">
+          <svg viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="track" cx="60" cy="60" r="52"></circle>
+            <circle id="timerRing" class="progress" cx="60" cy="60" r="52"></circle>
+          </svg>
+          <div>
+            <strong id="timerValue">10</strong>
+            <span>Seconds</span>
+          </div>
+        </div>
+
+        <button id="downloadBtn" class="btn primary wide" type="button" disabled>Preparing Link</button>
+        <a id="fallbackBtn" class="btn ghost wide hidden" href="./index.html">Back Home</a>
+      </section>
+
+      <div id="redirectDialog" class="redirect-dialog hidden" role="dialog" aria-modal="true">
+        <div>
+          <span class="download-status">Premium Route Ready</span>
+          <h2>Opening Secure Link</h2>
+          <p>You will pass through the verified RGX shortener and then receive the file in Telegram.</p>
+          <div class="dialog-loader"><span></span></div>
+        </div>
+      </div>
+    </main>
+
+    <script src="./firebase-data.js"></script>
+    <script src="./download.js"></script>
+  </body>
+</html>

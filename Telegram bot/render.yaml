@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: rgx-telegram-bot
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: BOT_TOKEN
+        sync: false
+      - key: ADMIN_CHAT_ID
+        value: "5844447576"
+      - key: SHORTENER_API_KEY
+        sync: false
+      - key: PUBLIC_SITE_URL
+        value: "https://rahulgamerx.in"
+      - key: BOT_USERNAME
+        value: "rahullgamerxfile_bot"
+      - key: FIREBASE_DATABASE_URL
+        value: "https://rgxbotfile-default-rtdb.firebaseio.com"
+      - key: FIREBASE_PATH
+        value: "rgx"
+      - key: AUTO_DEPLOY
+        value: "false"

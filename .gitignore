@@ -1,0 +1,10 @@
+.env
+node_modules/
+npm-debug.log*
+Telegram bot/data/
+Telegram bot/bot.log
+Telegram bot/bot.err
+site.log
+site.err
+
+.vercel

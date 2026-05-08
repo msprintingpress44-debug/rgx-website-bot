@@ -1,0 +1,14 @@
+{
+  "name": "rgx-telegram-bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "RGX Telegram admin bot for generating website download links.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "node-telegram-bot-api": "^0.66.0"
+  }
+}
