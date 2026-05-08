@@ -7,7 +7,6 @@ import {
   extractYouTubeId,
   formatDate,
   loadRgxData,
-  postUrl,
   saveRgxData,
   sortedPosts,
   uploadImage
@@ -15,6 +14,14 @@ import {
 import "./styles.css";
 
 const ADMIN_PASSWORD = "reverse";
+const SUBSCRIBER_TEXT = "25.8K+ Subscribers";
+
+const ADMIN_TABS = [
+  { id: "dashboard", label: "Dashboard", icon: "dashboard" },
+  { id: "posts", label: "Posts", icon: "post" },
+  { id: "links", label: "Links", icon: "link" },
+  { id: "files", label: "Files", icon: "download" }
+];
 
 function App() {
   const [data, setData] = useState(emptyData);
@@ -45,7 +52,9 @@ function App() {
     setData(next);
   }
 
-  if (loading) return <Shell navigate={navigate}><div className="loader">Loading Rahul Gamer X...</div></Shell>;
+  if (loading) {
+    return <Shell navigate={navigate}><div className="loader">Loading Rahul Gamer X...</div></Shell>;
+  }
 
   const pageProps = { data, saveData, refresh, navigate };
   if (route.page === "admin") return <AdminPage {...pageProps} />;
@@ -56,20 +65,30 @@ function App() {
 }
 
 function Shell({ children, navigate, dark = true }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navItems = [
+    { label: "Home", path: "/", icon: "home" },
+    { label: "Downloads", path: "/download", icon: "download" },
+    { label: "About", path: "/about", icon: "user" },
+    { label: "Contact", path: "/contact", icon: "mail" }
+  ];
+
   return (
     <div className={dark ? "app-shell dark" : "app-shell"}>
       <header className="topbar">
-        <button className="icon-btn" onClick={() => navigate("/")}>☰</button>
+        <button className="icon-btn" onClick={() => setMenuOpen((value) => !value)} aria-label="Menu"><Icon name="menu" /></button>
         <button className="brand-btn" onClick={() => navigate("/")}>Rahul Gamer X</button>
-        <div className="search-pill">⌕ <span>e.g. GTA SA Mods, Dialog File</span></div>
-        <button className="icon-btn" onClick={() => navigate("/contact")}>☾</button>
+        <div className="search-pill"><Icon name="search" /> <span>e.g. GTA SA Mods, Dialog File</span></div>
+        <button className="icon-btn" onClick={() => navigate("/contact")} aria-label="Contact"><Icon name="moon" /></button>
       </header>
       <div className="layout">
-        <aside className="rail">
-          <button onClick={() => navigate("/")}>⌂</button>
-          <button onClick={() => navigate("/download")}>▣</button>
-          <button onClick={() => navigate("/about")}>◎</button>
-          <button onClick={() => navigate("/contact")}>✉</button>
+        <aside className={menuOpen ? "rail expanded" : "rail"}>
+          {navItems.map((item) => (
+            <button key={item.path} onClick={() => navigate(item.path)} title={item.label}>
+              <Icon name={item.icon} />
+              <span>{item.label}</span>
+            </button>
+          ))}
         </aside>
         {children}
       </div>
@@ -90,7 +109,7 @@ function HomePage({ data, navigate, postId }) {
             <PostView post={currentPost} />
           ) : (
             <>
-              <Hero />
+              <Hero latest={pinned?.title} />
               <SectionTitle title="Pinned Post" />
               {pinned ? <PostCard post={pinned} pinned navigate={navigate} /> : <Empty text="No post published yet." />}
               <SectionTitle title="All Story" />
@@ -106,12 +125,13 @@ function HomePage({ data, navigate, postId }) {
   );
 }
 
-function Hero() {
+function Hero({ latest }) {
   return (
     <section className="hero-panel">
-      <h1>3500+ Subscribers</h1>
-      <h2>Thank You</h2>
-      <div className="latest-chip"><span>Latest:</span> <b>Loading latest post...</b></div>
+      <div className="hero-orbit" />
+      <h1>{SUBSCRIBER_TEXT}</h1>
+      <h2>Thank You Fans</h2>
+      <div className="latest-chip"><span>Latest</span> <b>{latest || "Loading latest post..."}</b></div>
     </section>
   );
 }
@@ -125,7 +145,7 @@ function PostCard({ post, navigate, pinned = false }) {
     <article className={pinned ? "post-card pinned" : "post-card"}>
       {post.image && <img src={post.image} alt={post.title} />}
       <div className="post-card-body">
-        <small>{post.category || "Post"}{post.pinned ? " · Pinned" : ""}</small>
+        <small>{post.category || "Post"}{post.pinned ? " - Pinned" : ""}</small>
         <button className="post-title-btn" onClick={() => navigate(`/?post=${encodeURIComponent(post.id)}`)}>{post.title}</button>
         <p>{post.description || post.subtitle || "Rahul Gamer X update."}</p>
         <time>{formatDate(post.createdAt || post.timestamp)}</time>
@@ -150,20 +170,20 @@ function Sidebar({ posts, data, navigate }) {
       </div>
       <SectionTitle title="Social Media" />
       <div className="social-stack">
-        {links.telegram && <a href={links.telegram} target="_blank" rel="noreferrer">Telegram</a>}
-        {links.youtube && <a href={links.youtube} target="_blank" rel="noreferrer">YouTube</a>}
-        {links.instagram && <a href={links.instagram} target="_blank" rel="noreferrer">Instagram</a>}
+        {links.telegram && <a href={links.telegram} target="_blank" rel="noreferrer"><Icon name="send" /> Telegram</a>}
+        {links.youtube && <a href={links.youtube} target="_blank" rel="noreferrer"><Icon name="play" /> YouTube</a>}
+        {links.instagram && <a href={links.instagram} target="_blank" rel="noreferrer"><Icon name="camera" /> Instagram</a>}
       </div>
-      {video && <VideoBox link={video} />}
+      {video && <VideoBox link={video} floating />}
     </aside>
   );
 }
 
-function VideoBox({ link }) {
+function VideoBox({ link, floating = false }) {
   const id = extractYouTubeId(link);
-  const src = id ? `https://www.youtube.com/embed/${id}?controls=1&rel=0` : link;
+  const src = id ? `https://www.youtube.com/embed/${id}?autoplay=1&mute=1&controls=1&rel=0&playsinline=1` : link;
   return (
-    <div className="video-box">
+    <div className={floating ? "video-box floating-video" : "video-box"}>
       <div className="video-title">New Video</div>
       <iframe src={src} title="Rahul Gamer X video" allow="autoplay; encrypted-media" allowFullScreen />
       <a href={link} target="_blank" rel="noreferrer">Open in YouTube</a>
@@ -211,6 +231,8 @@ function AdminPage({ data, saveData, refresh, navigate }) {
   const [form, setForm] = useState(blankPost());
   const [support, setSupport] = useState(data.settings?.socialLinks || {});
   const [status, setStatus] = useState("Ready");
+  const [activeTab, setActiveTab] = useState("dashboard");
+  const [adminMenuOpen, setAdminMenuOpen] = useState(true);
 
   useEffect(() => setSupport(data.settings?.socialLinks || {}), [data.settings]);
 
@@ -227,8 +249,9 @@ function AdminPage({ data, saveData, refresh, navigate }) {
     event.preventDefault();
     setStatus("Uploading/saving...");
     const imageFromUpload = await uploadImage(form.imageFile);
+    const existing = data.posts.find((post) => post.id === editingId);
     const nextPost = {
-      ...(data.posts.find((post) => post.id === editingId) || {}),
+      ...(existing || {}),
       id: editingId || createId(),
       title: form.title.trim(),
       category: form.category.trim() || "Post",
@@ -237,13 +260,16 @@ function AdminPage({ data, saveData, refresh, navigate }) {
       imageUrl: imageFromUpload || form.imageUrl.trim(),
       buttonText: form.buttonText.trim() || "Download Now",
       buttonUrl: form.buttonUrl.trim(),
-      postButtons: parseButtons(form.extraButtons),
+      postButtons: form.extraButtons.filter((button) => button.text.trim() && button.url.trim()),
       pinned: form.pinned,
       active: true,
-      createdAt: editingId ? data.posts.find((post) => post.id === editingId)?.createdAt : new Date().toISOString(),
+      createdAt: editingId ? existing?.createdAt : new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    if (!nextPost.title) return setStatus("Post title required.");
+    if (!nextPost.title) {
+      setStatus("Post title required.");
+      return;
+    }
     const posts = editingId
       ? data.posts.map((post) => post.id === editingId ? nextPost : post)
       : [nextPost, ...data.posts];
@@ -252,6 +278,7 @@ function AdminPage({ data, saveData, refresh, navigate }) {
     setForm(blankPost());
     setEditingId("");
     setStatus("Post saved.");
+    setActiveTab("posts");
   }
 
   async function deletePost(id) {
@@ -265,10 +292,6 @@ function AdminPage({ data, saveData, refresh, navigate }) {
     setStatus("Support links saved.");
   }
 
-  function selectFileLink(value) {
-    setForm((current) => ({ ...current, buttonUrl: value }));
-  }
-
   function edit(post) {
     setEditingId(post.id);
     setForm({
@@ -279,17 +302,20 @@ function AdminPage({ data, saveData, refresh, navigate }) {
       imageFile: null,
       buttonText: post.buttonText || "Download Now",
       buttonUrl: post.buttonUrl || "",
-      extraButtons: Array.isArray(post.postButtons) ? post.postButtons.map((b) => `${b.text} | ${b.url}`).join("\n") : "",
+      extraButtons: Array.isArray(post.postButtons) ? post.postButtons.map((b) => ({ text: b.text || "", url: b.url || "" })) : [],
       pinned: !!post.pinned
     });
+    setActiveTab("posts");
   }
 
   if (!loggedIn) {
     return (
-      <div className="admin-page">
+      <div className="admin-page login-screen">
         <section className="login-card">
+          <div className="login-glow" />
+          <div className="login-logo"><Icon name="dashboard" /></div>
           <h1>Rahul Gamer X Admin</h1>
-          <p>Clean React admin panel. Password required.</p>
+          <p>Luxury React control center. Login to manage posts, links and files.</p>
           <input value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === "Enter" && login()} placeholder="Password" type="password" />
           <button onClick={login}>Login</button>
           <small>{status}</small>
@@ -300,77 +326,148 @@ function AdminPage({ data, saveData, refresh, navigate }) {
 
   return (
     <div className="admin-page">
-      <header className="admin-header">
-        <div><b>Rahul Gamer X</b><span>{status}</span></div>
-        <div>
-          <button onClick={refresh}>Refresh</button>
-          <button onClick={() => navigate("/")}>Open Site</button>
-        </div>
-      </header>
-      <main className="admin-grid-page">
-        <section className="admin-panel">
-          <h2>{editingId ? "Edit Post" : "New Post"}</h2>
-          <form className="admin-form" onSubmit={submitPost}>
-            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Post title" required />
-            <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category" />
-            <input type="file" accept="image/*" onChange={(e) => setForm({ ...form, imageFile: e.target.files?.[0] || null })} />
-            <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} placeholder="Image URL or upload image above" />
-            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" rows="5" />
-            <select value={form.buttonUrl} onChange={(e) => selectFileLink(e.target.value)}>
-              <option value="">Select uploaded bot file for download button</option>
-              {data.files.map((file) => <option key={file.id} value={downloadUrl(file)}>{file.fileName || file.title || file.id}</option>)}
-            </select>
-            <input value={form.buttonText} onChange={(e) => setForm({ ...form, buttonText: e.target.value })} placeholder="Download button name" />
-            <input value={form.buttonUrl} onChange={(e) => setForm({ ...form, buttonUrl: e.target.value })} placeholder="Download button link (optional)" />
-            <textarea value={form.extraButtons} onChange={(e) => setForm({ ...form, extraButtons: e.target.value })} placeholder="Extra buttons optional: Name | Link" rows="3" />
-            <label className="check-row"><input type="checkbox" checked={form.pinned} onChange={(e) => setForm({ ...form, pinned: e.target.checked })} /> Pin this post</label>
-            <button className="primary-btn" type="submit">{editingId ? "Update Post" : "Publish Post"}</button>
-          </form>
-        </section>
-        <section className="admin-panel">
-          <h2>Posts</h2>
-          <div className="admin-list">
-            {data.posts.map((post) => (
-              <article key={post.id}>
-                <b>{post.title}</b>
-                <small>{post.category} · {post.pinned ? "Pinned" : "Normal"}</small>
-                <div><button onClick={() => edit(post)}>Edit</button><button onClick={() => deletePost(post.id)}>Delete</button></div>
-              </article>
-            ))}
+      <aside className={adminMenuOpen ? "admin-sidebar open" : "admin-sidebar"}>
+        <button className="admin-menu-btn" onClick={() => setAdminMenuOpen((value) => !value)}><Icon name="menu" /><span>Menu</span></button>
+        <div className="admin-brand">RGX Admin</div>
+        {ADMIN_TABS.map((tab) => (
+          <button key={tab.id} className={activeTab === tab.id ? "active" : ""} onClick={() => setActiveTab(tab.id)}>
+            <Icon name={tab.icon} /><span>{tab.label}</span>
+          </button>
+        ))}
+      </aside>
+
+      <section className="admin-workspace">
+        <header className="admin-header">
+          <div><b>Rahul Gamer X</b><span>{status}</span></div>
+          <div>
+            <button onClick={refresh}><Icon name="refresh" /> Refresh</button>
+            <button onClick={() => navigate("/")}><Icon name="home" /> Open Site</button>
           </div>
-          <h2>Support Links</h2>
-          <form className="admin-form compact" onSubmit={saveSupport}>
-            {["telegram", "youtube", "instagram", "video"].map((key) => (
-              <input key={key} value={support[key] || ""} onChange={(e) => setSupport({ ...support, [key]: e.target.value })} placeholder={`${key} link`} />
-            ))}
-            <button className="primary-btn" type="submit">Save Links</button>
-          </form>
-        </section>
-      </main>
+        </header>
+
+        {activeTab === "dashboard" && <DashboardPanel data={data} setActiveTab={setActiveTab} />}
+
+        {activeTab === "posts" && (
+          <main className="admin-grid-page">
+            <section className="admin-panel">
+              <h2>{editingId ? "Edit Post" : "New Post"}</h2>
+              <form className="admin-form" onSubmit={submitPost}>
+                <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Post title" required />
+                <input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Category" />
+                <input type="file" accept="image/*" onChange={(e) => setForm({ ...form, imageFile: e.target.files?.[0] || null })} />
+                <input value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} placeholder="Image URL or upload image above" />
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Description" rows="5" />
+                <select value={form.buttonUrl} onChange={(e) => setForm({ ...form, buttonUrl: e.target.value })}>
+                  <option value="">Select uploaded bot file for download button</option>
+                  {data.files.map((file) => <option key={file.id} value={downloadUrl(file)}>{file.fileName || file.title || file.id}</option>)}
+                </select>
+                <input value={form.buttonText} onChange={(e) => setForm({ ...form, buttonText: e.target.value })} placeholder="Download button name" />
+                <input value={form.buttonUrl} onChange={(e) => setForm({ ...form, buttonUrl: e.target.value })} placeholder="Download button link (optional)" />
+                <ExtraButtonsEditor buttons={form.extraButtons} onChange={(extraButtons) => setForm({ ...form, extraButtons })} />
+                <label className="check-row"><input type="checkbox" checked={form.pinned} onChange={(e) => setForm({ ...form, pinned: e.target.checked })} /> Pin this post</label>
+                <button className="primary-btn" type="submit">{editingId ? "Update Post" : "Publish Post"}</button>
+              </form>
+            </section>
+            <section className="admin-panel">
+              <h2>Posts</h2>
+              <div className="admin-list">
+                {data.posts.map((post) => (
+                  <article key={post.id}>
+                    <b>{post.title}</b>
+                    <small>{post.category} - {post.pinned ? "Pinned" : "Normal"}</small>
+                    <div><button onClick={() => edit(post)}>Edit</button><button onClick={() => deletePost(post.id)}>Delete</button></div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          </main>
+        )}
+
+        {activeTab === "links" && (
+          <section className="admin-panel wide-panel">
+            <h2>Support Links</h2>
+            <form className="admin-form" onSubmit={saveSupport}>
+              {["telegram", "youtube", "instagram", "video"].map((key) => (
+                <input key={key} value={support[key] || ""} onChange={(e) => setSupport({ ...support, [key]: e.target.value })} placeholder={`${key} link`} />
+              ))}
+              <button className="primary-btn" type="submit">Save Links</button>
+            </form>
+          </section>
+        )}
+
+        {activeTab === "files" && <FilesPanel files={data.files} />}
+      </section>
     </div>
   );
 }
 
 function blankPost() {
-  return { title: "", category: "", description: "", imageUrl: "", imageFile: null, buttonText: "Download Now", buttonUrl: "", extraButtons: "", pinned: false };
+  return { title: "", category: "", description: "", imageUrl: "", imageFile: null, buttonText: "Download Now", buttonUrl: "", extraButtons: [], pinned: false };
 }
 
-function parseButtons(value) {
-  return String(value || "").split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [text, url] = line.split("|").map((part) => part.trim());
-      return { text, url };
-    })
-    .filter((button) => button.text && button.url);
+function ExtraButtonsEditor({ buttons, onChange }) {
+  function update(index, key, value) {
+    onChange(buttons.map((button, current) => current === index ? { ...button, [key]: value } : button));
+  }
+  return (
+    <div className="extra-buttons-editor">
+      <div className="field-heading">
+        <span>Extra buttons</span>
+        <button type="button" onClick={() => onChange([...buttons, { text: "", url: "" }])}>Add New Button</button>
+      </div>
+      {!buttons.length && <small>Optional. Add Telegram, YouTube, support or any custom button.</small>}
+      {buttons.map((button, index) => (
+        <div className="extra-button-row" key={index}>
+          <input value={button.text} onChange={(e) => update(index, "text", e.target.value)} placeholder="Button name" />
+          <input value={button.url} onChange={(e) => update(index, "url", e.target.value)} placeholder="Button link" />
+          <button type="button" onClick={() => onChange(buttons.filter((_, current) => current !== index))}>Delete</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DashboardPanel({ data, setActiveTab }) {
+  const cards = [
+    ["Posts", data.posts.length, "posts"],
+    ["Files", data.files.length, "files"],
+    ["Users", Object.keys(data.users || {}).length, "dashboard"],
+    ["Links", Object.keys(data.settings?.socialLinks || {}).filter((key) => data.settings.socialLinks[key]).length, "links"]
+  ];
+  return (
+    <section className="dashboard-panel">
+      {cards.map(([label, value, tab]) => (
+        <button key={label} onClick={() => setActiveTab(tab)}>
+          <span>{label}</span>
+          <b>{value}</b>
+        </button>
+      ))}
+    </section>
+  );
+}
+
+function FilesPanel({ files }) {
+  return (
+    <section className="admin-panel wide-panel">
+      <h2>Bot Files</h2>
+      <div className="admin-list">
+        {!files.length && <p>No bot files yet. Upload files in Telegram bot, then select them in post form.</p>}
+        {files.map((file) => (
+          <article key={file.id}>
+            <b>{file.fileName || file.title || file.id}</b>
+            <small>{downloadUrl(file)}</small>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 function AboutPage({ navigate }) {
   return (
     <SimplePage navigate={navigate} title="About Rahul Gamer X">
       <p>Rahul Gamer X is a gaming and modding hub for premium dialogs, Android modding content, download links and video updates.</p>
-      <p>The site is now rebuilt in React, so posts, files and official links stay connected with the database while the UI remains fast and clean.</p>
+      <p>The site is rebuilt in React, so posts, files and official links stay connected with the database while the UI remains fast and clean.</p>
     </SimplePage>
   );
 }
@@ -381,9 +478,9 @@ function ContactPage({ data, navigate }) {
     <SimplePage navigate={navigate} title="Contact Rahul Gamer X">
       <p>For support, collaborations, paid dialogs or updates, use the official links below.</p>
       <div className="contact-buttons">
-        {links.telegram && <a className="telegram" href={links.telegram} target="_blank" rel="noreferrer">Telegram</a>}
-        {links.youtube && <a className="youtube" href={links.youtube} target="_blank" rel="noreferrer">YouTube</a>}
-        {links.instagram && <a className="instagram" href={links.instagram} target="_blank" rel="noreferrer">Instagram</a>}
+        {links.telegram && <a className="telegram" href={links.telegram} target="_blank" rel="noreferrer"><Icon name="send" /> Telegram</a>}
+        {links.youtube && <a className="youtube" href={links.youtube} target="_blank" rel="noreferrer"><Icon name="play" /> YouTube</a>}
+        {links.instagram && <a className="instagram" href={links.instagram} target="_blank" rel="noreferrer"><Icon name="camera" /> Instagram</a>}
       </div>
     </SimplePage>
   );
@@ -420,6 +517,26 @@ function DownloadPage({ data, id, navigate }) {
 
 function Empty({ text }) {
   return <div className="empty">{text}</div>;
+}
+
+function Icon({ name }) {
+  const icons = {
+    menu: <><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></>,
+    home: <><path d="M3 11l9-8 9 8" /><path d="M5 10v10h14V10" /><path d="M9 20v-6h6v6" /></>,
+    download: <><path d="M12 3v12" /><path d="M7 10l5 5 5-5" /><path d="M5 21h14" /></>,
+    user: <><circle cx="12" cy="8" r="4" /><path d="M4 21a8 8 0 0 1 16 0" /></>,
+    mail: <><path d="M4 6h16v12H4z" /><path d="M4 7l8 6 8-6" /></>,
+    search: <><circle cx="11" cy="11" r="7" /><path d="M20 20l-4-4" /></>,
+    moon: <path d="M20 15.5A8.5 8.5 0 0 1 8.5 4 7 7 0 1 0 20 15.5z" />,
+    send: <><path d="M22 2L11 13" /><path d="M22 2l-7 20-4-9-9-4 20-7z" /></>,
+    play: <path d="M8 5v14l11-7z" />,
+    camera: <><path d="M4 8h4l2-3h4l2 3h4v11H4z" /><circle cx="12" cy="13" r="4" /></>,
+    dashboard: <><path d="M4 13h7V4H4z" /><path d="M13 20h7V4h-7z" /><path d="M4 20h7v-5H4z" /></>,
+    post: <><path d="M5 4h14v16H5z" /><path d="M8 8h8" /><path d="M8 12h8" /><path d="M8 16h5" /></>,
+    link: <><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1" /></>,
+    refresh: <><path d="M21 12a9 9 0 0 1-15 6.7" /><path d="M3 12a9 9 0 0 1 15-6.7" /><path d="M18 3v5h-5" /><path d="M6 21v-5h5" /></>
+  };
+  return <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true">{icons[name] || icons.home}</svg>;
 }
 
 function getRoute() {
