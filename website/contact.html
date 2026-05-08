@@ -14,9 +14,9 @@
     }
 
     body {
-      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      background: #080a10;
       font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
-      color: #0a0c10;
+      color: #eef2ff;
       line-height: 1.5;
       scroll-behavior: smooth;
     }
@@ -26,16 +26,16 @@
 
     /* subtle animated glass bg effect */
     .blog-body {
-      background: radial-gradient(circle at 10% 20%, rgba(255,255,245,0.3), rgba(235,245,255,0.2));
+      background: radial-gradient(circle at 10% 20%, rgba(32, 38, 58, 0.8), #080a10);
       min-height: 100vh;
     }
 
     /* ========== HEADER (COMPACT & GLASS) ========== */
     .blog-header {
-      background: rgba(255, 255, 255, 0.92);
+      background: rgba(10, 12, 18, 0.9);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.02);
+      border-bottom: 1px solid rgba(227, 77, 59, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -56,7 +56,7 @@
 
     .blog-top a {
       text-decoration: none;
-      color: #2c3e4e;
+      color: #d7def5;
       transition: all 0.2s ease;
       letter-spacing: -0.2px;
       font-weight: 500;
@@ -115,7 +115,7 @@
 
     /* contact article card */
     .post-article {
-      background: rgba(255,255,255,0.85);
+      background: rgba(15, 19, 30, 0.86);
       backdrop-filter: blur(0px);
       border-radius: 2rem;
       padding: 2rem 2rem 2.8rem;
@@ -174,7 +174,7 @@
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      background: white;
+      background: rgba(15, 19, 30, 0.9);
       padding: 0.85rem 1.8rem;
       border-radius: 60px;
       font-weight: 600;
@@ -239,12 +239,12 @@
     }
 
     .sidebar-card {
-      background: rgba(255,255,240,0.75);
+      background: rgba(15, 23, 42, 0.78);
       backdrop-filter: blur(10px);
       border-radius: 1.6rem;
       padding: 1.6rem 1.6rem 2rem;
-      box-shadow: 0 12px 24px -12px rgba(0,0,0,0.08);
-      border: 1px solid rgba(227,77,59,0.2);
+      box-shadow: 0 18px 34px -18px rgba(0,0,0,0.65);
+      border: 1px solid rgba(227,77,59,0.28);
       transition: all 0.2s;
     }
 
@@ -254,17 +254,17 @@
       margin-bottom: 1.25rem;
       border-left: 4px solid #e34d3b;
       padding-left: 0.9rem;
-      color: #1f2a3e;
+      color: #f8fafc;
     }
 
     .popular-list a:not([data-social]) {
-      background: #ffffffcc;
+      background: rgba(2, 6, 23, 0.72);
       padding: 0.7rem 1.2rem;
       border-radius: 40px;
       font-weight: 500;
       text-decoration: none;
-      color: #2c3e50;
-      border: 1px solid #e2e8f0;
+      color: #e5edff;
+      border: 1px solid rgba(148, 163, 184, 0.24);
       transition: 0.2s;
     }
 
@@ -328,9 +328,9 @@
       text-align: center;
       padding: 2rem;
       font-size: 0.8rem;
-      color: #5c6f87;
-      border-top: 1px solid rgba(0,0,0,0.05);
-      background: #ffffff70;
+      color: #94a3b8;
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+      background: rgba(2, 6, 23, 0.72);
       backdrop-filter: blur(4px);
     }
 
@@ -352,7 +352,6 @@
     <div class="blog-top">
       <a href="./index.html">🏠 Home</a>
       <a href="./about.html">📖 About</a>
-      <a href="./admin.html">⚙️ Admin Panel</a>
     </div>
     <a class="blog-brand" href="./index.html">
       🎮 Rahul Gamer X
@@ -380,7 +379,6 @@
         <div class="popular-list" style="display: flex; flex-direction: column; gap: 0.7rem;">
           <a href="./index.html">🏠 Home — latest news</a>
           <a href="./about.html">👤 About Rahul Gamer X</a>
-          <a href="./admin.html">🔐 Admin Panel (manage links)</a>
         </div>
       </section>
       <section class="sidebar-card" style="margin-top: 1.5rem;">

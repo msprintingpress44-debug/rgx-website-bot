@@ -6,6 +6,7 @@
   renderPosts(posts);
   renderDownloads(data.files || []);
   renderBloggerPosts(posts);
+  setupInlinePosts(posts);
   wireSearch();
 })();
 
@@ -55,6 +56,136 @@ function renderBloggerPosts(posts) {
   if (featured) featured.innerHTML = bloggerFeatured(pinned);
   if (blogGrid) blogGrid.innerHTML = active.map(bloggerCard).join("");
   if (popular) popular.innerHTML = active.slice(0, 5).map((post, index) => bloggerPopular(post, index)).join("");
+}
+
+function setupInlinePosts(posts) {
+  const blogB = document.querySelector(".blogB");
+  if (!blogB) return;
+  injectInlinePostStyles();
+  const originalBlogHtml = blogB.innerHTML;
+
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href*='post.html?id=']");
+    if (!link) return;
+    const id = new URL(link.href, location.href).searchParams.get("id");
+    const post = posts.find((item) => String(item.id) === String(id));
+    if (!post) return;
+    event.preventDefault();
+    renderInlinePost(blogB, post);
+    history.pushState({ rgxInlinePost: post.id }, "", `?post=${encodeURIComponent(post.id)}`);
+  });
+
+  window.addEventListener("popstate", () => {
+    const id = new URLSearchParams(location.search).get("post");
+    const post = posts.find((item) => String(item.id) === String(id));
+    if (post) {
+      renderInlinePost(blogB, post);
+      return;
+    }
+    blogB.innerHTML = originalBlogHtml;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  const initialId = new URLSearchParams(location.search).get("post");
+  const initialPost = posts.find((item) => String(item.id) === String(initialId));
+  if (initialPost) renderInlinePost(blogB, initialPost);
+}
+
+function renderInlinePost(target, post) {
+  target.innerHTML = `
+    <article class="p post rgx-inline-post">
+      <div class="pT"><h1>${escapeHtml(post.title || "Rahul Gamer X Post")}</h1></div>
+      <div class="pE">${renderTemplatePost(post)}</div>
+    </article>
+  `;
+  target.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function renderTemplatePost(post) {
+  const buttons = normalizeButtons(post);
+  const customBody = String(post.htmlContent || "").trim();
+  const description = customBody || formatText(post.description || "");
+  const logo = post.logo || post.image || "";
+  const mainTitle = post.templateTitle || post.subtitle || post.title || "Unbypassable Login Key Dialog";
+  const subTitle = post.templateSubtitle || post.category || "Rahul Gamer X";
+
+  return `
+    <div class="dp-post-wrapper">
+      <div class="dp-content-layer">
+        ${logo ? `<img class="post-logo" src="${escapeAttr(logo)}" alt="${escapeAttr(post.title || "Rahul Gamer X")}">` : ""}
+        <div class="dp-main-title">${escapeHtml(mainTitle)}</div>
+        <div class="dp-sub-title">${escapeHtml(subTitle)}</div>
+        <div class="dp-template-copy">${description}</div>
+        ${customBody ? "" : renderDefaultFeatureGrid(post)}
+        <div class="dp-dl-area">${buttons.map(renderTemplateButton).join("")}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDefaultFeatureGrid(post) {
+  return `
+    <div class="dp-features-grid">
+      <div class="dp-feature-card"><span>🔒</span><div><strong>Device ID / HWID Ready</strong><br>Use this area for security details, features, or mod notes.</div></div>
+      <div class="dp-feature-card"><span>☁️</span><div><strong>Remote Panel Support</strong><br>Edit this post from the admin panel and publish instantly.</div></div>
+      <div class="dp-feature-card"><span>🎨</span><div><strong>Premium UI</strong><br>The same red dialog template stays consistent for every post.</div></div>
+      <div class="dp-feature-card"><span>🛠️</span><div><strong>${escapeHtml(post.category || "MT Manager")}</strong><br>Add your own HTML content for full control.</div></div>
+    </div>
+  `;
+}
+
+function normalizeButtons(post) {
+  const extras = Array.isArray(post.postButtons) ? post.postButtons : [];
+  const buttons = extras.map((button) => {
+    if (typeof button === "string") return null;
+    return button;
+  }).filter((button) => button && button.text && button.url);
+
+  if (post.buttonUrl) {
+    buttons.unshift({
+      text: post.buttonText || "Download Dialog Files",
+      url: post.buttonUrl,
+      subtext: post.buttonSubtext || "Contains files and assets"
+    });
+  }
+  return buttons.length ? buttons : [{ text: "Back Home", url: "./index.html", subtext: "Return to Rahul Gamer X" }];
+}
+
+function renderTemplateButton(button, index) {
+  if (index === 0) {
+    return `
+      <a class="dp-dl-button" href="${escapeAttr(button.url)}" target="_blank" rel="noopener">
+        <div class="dp-dl-icon">📦</div>
+        <div class="dp-dl-text"><span class="btn-head">${escapeHtml(button.text)}</span><span class="btn-sub">${escapeHtml(button.subtext || "")}</span></div>
+        <div class="dp-dl-arrow">➡️</div>
+      </a>
+    `;
+  }
+  return `<a class="dp-secondary-link" href="${escapeAttr(button.url)}" target="_blank" rel="noopener">${escapeHtml(button.text)}</a>`;
+}
+
+function injectInlinePostStyles() {
+  if (document.querySelector("#rgx-inline-post-styles")) return;
+  const style = document.createElement("style");
+  style.id = "rgx-inline-post-styles";
+  style.textContent = `
+    .rgx-inline-post .pT h1{margin-bottom:22px}
+    .dp-post-wrapper{background:#050505;border-radius:20px;padding:clamp(18px,4vw,30px);border:1px solid rgba(255,42,42,.15);box-shadow:0 24px 55px rgba(0,0,0,.55);color:#f8fafc;overflow:hidden}
+    .post-logo{display:block;width:min(170px,45vw);margin:0 auto 18px;border-radius:22px;box-shadow:0 16px 38px rgba(0,0,0,.35)}
+    .dp-main-title{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;text-align:center;color:#fff}
+    .dp-sub-title{text-align:center;color:#ff2a2a;font-size:.95em;margin-bottom:30px;letter-spacing:.08em;text-transform:uppercase}
+    .dp-template-copy,.dp-template-copy p{color:#e7ecf8}
+    .dp-features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:15px;margin:35px 0}
+    .dp-feature-card{display:flex;gap:15px;background:#121212;padding:20px;border-radius:14px;border:1px solid rgba(255,42,42,.15)}
+    .dp-feature-card>span{font-size:1.6rem}
+    .dp-dl-area{display:flex;flex-direction:column;gap:14px;margin-top:28px}
+    .dp-dl-button{display:flex;align-items:center;background:#121212;padding:16px 25px;border-radius:16px;text-decoration:none;border:1px solid rgba(255,42,42,.15);transition:.3s;color:white}
+    .dp-dl-button:hover{border-color:#ff2a2a;background:rgba(255,42,42,.1)}
+    .dp-dl-icon{font-size:2rem;margin-right:18px}.dp-dl-text{flex-grow:1}.dp-dl-arrow{font-size:1.5rem}
+    .btn-head{font-weight:800;display:block}.btn-sub{color:#ff8585;font-size:.85em;display:block}
+    .dp-secondary-link{align-self:center;padding:10px 22px;background:rgba(255,255,255,.03);border-radius:50px;color:#8b9bb4;text-decoration:none}
+  `;
+  document.head.appendChild(style);
 }
 
 function renderDownloads(files) {
@@ -224,6 +355,10 @@ function formatDate(value) {
 function trim(value, length) {
   const text = String(value || "").replace(/\s+/g, " ").trim();
   return text.length > length ? `${text.slice(0, length - 1)}...` : text;
+}
+
+function formatText(value) {
+  return escapeHtml(value).replace(/\n/g, "<br>");
 }
 
 function escapeAttr(value) {
