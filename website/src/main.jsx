@@ -2,9 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
   createId,
+  downloadIdFromUrl,
   downloadUrl,
   emptyData,
   extractYouTubeId,
+  fileTargetUrl,
   formatDate,
   loadRgxData,
   saveRgxData,
@@ -127,7 +129,7 @@ function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
       <main className="content-grid">
         <section className="main-column">
           {currentPost ? (
-            <PostView post={currentPost} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
+            <PostView post={currentPost} files={data.files} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
           ) : (
             <>
               <Hero latest={pinned?.title} />
@@ -213,8 +215,8 @@ function VideoBox({ link, floating = false }) {
   );
 }
 
-function PostView({ post, favoriteIds = [], toggleFavorite = () => {} }) {
-  const buttons = getPostButtons(post);
+function PostView({ post, files = [], favoriteIds = [], toggleFavorite = () => {} }) {
+  const buttons = getPostButtons(post, files);
   const image = post.image || post.imageUrl || post.logo;
   const isFavorite = favoriteIds.includes(String(post.id));
   return (
@@ -255,15 +257,22 @@ function FavoritesPage({ data, navigate, favoriteIds, toggleFavorite }) {
   );
 }
 
-function getPostButtons(post) {
+function getPostButtons(post, files = []) {
   const buttons = [];
-  if (post.buttonUrl) buttons.push({ text: post.buttonText || "Download Now", url: post.buttonUrl });
+  if (post.buttonUrl) buttons.push({ text: post.buttonText || "Download Now", url: resolvePostButtonUrl(post.buttonUrl, files) });
   if (Array.isArray(post.postButtons)) {
     post.postButtons.forEach((button) => {
-      if (button?.text && button?.url) buttons.push(button);
+      if (button?.text && button?.url) buttons.push({ ...button, url: resolvePostButtonUrl(button.url, files) });
     });
   }
   return buttons;
+}
+
+function resolvePostButtonUrl(url, files = []) {
+  const fileId = downloadIdFromUrl(url);
+  if (!fileId) return url;
+  const file = files.find((item) => String(item.id) === String(fileId));
+  return fileTargetUrl(file) || url;
 }
 
 function AdminPage({ data, saveData, refresh, navigate }) {
@@ -543,14 +552,29 @@ function SimplePage({ navigate, title, children }) {
 
 function DownloadPage({ data, id, navigate }) {
   const file = data.files.find((item) => String(item.id) === String(id)) || data.files[0];
+  const targetUrl = fileTargetUrl(file);
+  const isShortened = !!(file?.shortenedUrl || file?.shortUrl || file?.shortenerUrl);
+
+  useEffect(() => {
+    if (!file || !targetUrl) return undefined;
+    const timer = setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [file?.id, targetUrl]);
+
   if (!file) return <Shell navigate={navigate}><main className="simple-page"><article><h1>No download found</h1></article></main></Shell>;
   return (
     <Shell navigate={navigate}>
-      <main className="simple-page">
-        <article>
+      <main className="download-portal">
+        <article className="download-card">
+          <div className="download-badge"><Icon name="download" /></div>
+          <span className="download-status">{isShortened ? "Secure shortener ready" : "Secure download ready"}</span>
           <h1>{file.fileName || file.title || "Rahul Gamer X File"}</h1>
           <p>{file.caption || file.description || "Your download is ready."}</p>
-          <a className="download-btn" href={file.url || file.directUrl || file.telegramUrl || "#"} target="_blank" rel="noreferrer">Open Download</a>
+          <div className="download-progress" aria-hidden="true"><span /></div>
+          <small>{targetUrl ? "Redirecting automatically..." : "Download link missing. Please contact support."}</small>
+          <a className="download-btn" href={targetUrl || "#"} target="_blank" rel="noreferrer">Continue Download</a>
         </article>
       </main>
     </Shell>

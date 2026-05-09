@@ -66,6 +66,33 @@ export function downloadUrl(file) {
   return `${location.origin}/download?id=${encodeURIComponent(file.id)}`;
 }
 
+export function fileTargetUrl(file) {
+  if (!file) return "";
+  return (
+    file.shortenedUrl ||
+    file.shortUrl ||
+    file.shortenerUrl ||
+    file.destinationUrl ||
+    file.url ||
+    file.directUrl ||
+    file.telegramUrl ||
+    file.botUrl ||
+    ""
+  );
+}
+
+export function downloadIdFromUrl(value = "") {
+  try {
+    const url = new URL(String(value), location.origin);
+    if (url.pathname === "/download" || url.pathname === "/download.html") {
+      return url.searchParams.get("id") || "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
 export function postUrl(post) {
   return `${location.origin}/?post=${encodeURIComponent(post.id)}`;
 }
