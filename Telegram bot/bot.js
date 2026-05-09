@@ -221,6 +221,25 @@ bot.on("callback_query", async (query) => {
     return;
   }
 
+  if (action === "admin:shortener") {
+    await showShortenerPanel(chatId);
+    return;
+  }
+
+  if (action === "shortener:set") {
+    states.set(chatId, { step: "awaitShortenerToken" });
+    await bot.sendMessage(chatId, "New shortener API token bhejo. Ye token database me save hoga aur next generated links me use hoga.", backKeyboard());
+    return;
+  }
+
+  if (action === "shortener:clear") {
+    const db = readDb();
+    db.settings.shortenerApiKey = "";
+    writeDb(db);
+    await bot.sendMessage(chatId, "Shortener token cleared. Ab bot env SHORTENER_API_KEY fallback use karega.", backKeyboard());
+    return;
+  }
+
   if (action.startsWith("social:set:")) {
     const key = action.replace("social:set:", "");
     states.set(chatId, { step: "awaitSocial", socialKey: key });
@@ -273,6 +292,10 @@ bot.on("message", async (msg) => {
     }
     if (msg.text === "Official Links") {
       await showSocialPanel(chatId);
+      return;
+    }
+    if (msg.text === "Shortener Token") {
+      await showShortenerPanel(chatId);
       return;
     }
     if (msg.text === "Edit Files") {
@@ -367,6 +390,21 @@ bot.on("message", async (msg) => {
     states.delete(chatId);
     await bot.sendMessage(chatId, `${state.socialKey.toUpperCase()} link saved:\n${url}`, backKeyboard());
     await deploySite(chatId, "Official links updated");
+    return;
+  }
+
+  if (state.step === "awaitShortenerToken") {
+    const token = (msg.text || "").trim();
+    if (token.length < 8) {
+      await bot.sendMessage(chatId, "Token bahut short lag raha hai. Valid shortener API token bhejo.", backKeyboard());
+      return;
+    }
+
+    const db = readDb();
+    db.settings.shortenerApiKey = token;
+    writeDb(db);
+    states.delete(chatId);
+    await bot.sendMessage(chatId, `Shortener token saved.\n\nPreview: ${maskToken(token)}\n\nAb new generated links isi token se shorten honge.`, backKeyboard());
   }
 });
 
@@ -383,7 +421,8 @@ async function showAdminPanel(chatId) {
         [{ text: "Generate Link", callback_data: "admin:generate" }],
         [{ text: `Users (${totalUsers})`, callback_data: "admin:users" }, { text: "Broadcast", callback_data: "admin:broadcast" }],
         [{ text: "Edit Files", callback_data: "admin:files" }, { text: "Bulk Delete", callback_data: "files:deleteAll" }],
-        [{ text: "Channel", callback_data: "admin:channel" }, { text: "Official Links", callback_data: "admin:social" }]
+        [{ text: "Channel", callback_data: "admin:channel" }, { text: "Official Links", callback_data: "admin:social" }],
+        [{ text: "Shortener Token", callback_data: "admin:shortener" }]
       ]
     }
   });
@@ -762,6 +801,22 @@ async function showSocialPanel(chatId) {
   });
 }
 
+async function showShortenerPanel(chatId) {
+  const db = readDb();
+  const savedToken = db.settings.shortenerApiKey || "";
+  const envToken = SHORTENER_API_KEY || "";
+  const activeToken = getShortenerApiKey(db);
+  await bot.sendMessage(chatId, `Shortener Settings\n\nSaved token: ${savedToken ? maskToken(savedToken) : "Not set"}\nEnv fallback: ${envToken ? maskToken(envToken) : "Not set"}\nActive token: ${activeToken ? maskToken(activeToken) : "Not set"}\n\nNew links generate karte time active token use hoga.`, {
+    reply_markup: {
+      inline_keyboard: [
+        [{ text: "Set/Update Token", callback_data: "shortener:set" }],
+        [{ text: "Clear Saved Token", callback_data: "shortener:clear" }],
+        [{ text: "Back", callback_data: "admin:home" }]
+      ]
+    }
+  });
+}
+
 async function handleMiniAppData(chatId, rawData) {
   let payload;
   try {
@@ -858,10 +913,11 @@ async function canAccess(chatId, db = readDb()) {
 }
 
 async function shortenUrl(url) {
-  if (!SHORTENER_API_KEY) return "";
+  const apiKey = getShortenerApiKey();
+  if (!apiKey) return "";
 
   try {
-    const api = `https://www.earnreverse.fun/api/shorten?api=${encodeURIComponent(SHORTENER_API_KEY)}&url=${encodeURIComponent(url)}`;
+    const api = `https://www.earnreverse.fun/api/shorten?api=${encodeURIComponent(apiKey)}&url=${encodeURIComponent(url)}`;
     const res = await fetch(api);
     const json = await res.json();
     if (json && json.status === "success" && json.shortenedUrl) return json.shortenedUrl;
@@ -870,6 +926,17 @@ async function shortenUrl(url) {
   }
 
   return "";
+}
+
+function getShortenerApiKey(db = readDb()) {
+  return String(db.settings?.shortenerApiKey || SHORTENER_API_KEY || "").trim();
+}
+
+function maskToken(value) {
+  const token = String(value || "").trim();
+  if (!token) return "Not set";
+  if (token.length <= 8) return `${token.slice(0, 2)}****`;
+  return `${token.slice(0, 4)}...${token.slice(-4)}`;
 }
 
 async function setAdminMenuButton() {
@@ -972,6 +1039,7 @@ function adminReplyKeyboard() {
       keyboard: [
         [{ text: "/start" }, { text: "Generate Link" }],
         [{ text: "Channel" }, { text: "Official Links" }],
+        [{ text: "Shortener Token" }],
         [{ text: "Edit Files" }]
       ],
       resize_keyboard: true
