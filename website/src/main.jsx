@@ -72,6 +72,9 @@ function App() {
   if (route.page === "admin") return <AdminPage {...pageProps} />;
   if (route.page === "about") return <AboutPage navigate={navigate} />;
   if (route.page === "contact") return <ContactPage data={data} navigate={navigate} />;
+  if (route.page === "privacy") return <PrivacyPage navigate={navigate} />;
+  if (route.page === "disclaimer") return <DisclaimerPage navigate={navigate} />;
+  if (route.page === "terms") return <TermsPage navigate={navigate} />;
   if (route.page === "favorites") return <FavoritesPage {...pageProps} />;
   if (route.page === "download") return <DownloadPage {...pageProps} id={route.id} />;
   return <HomePage {...pageProps} postId={route.postId} />;
@@ -113,9 +116,37 @@ function Shell({ children, navigate }) {
             </button>
           ))}
         </aside>
-        {children}
+        <div className="shell-content">
+          {children}
+          <SiteFooter navigate={navigate} />
+        </div>
       </div>
     </div>
+  );
+}
+
+function SiteFooter({ navigate }) {
+  const links = [
+    ["Home", "/"],
+    ["About Us", "/about"],
+    ["Contact Us", "/contact"],
+    ["Privacy Policy", "/privacy-policy"],
+    ["Disclaimer", "/disclaimer"],
+    ["Terms and Conditions", "/terms-and-conditions"]
+  ];
+  return (
+    <footer className="site-footer">
+      <div>
+        <b>Rahul Gamer X</b>
+        <p>Gaming, Android modding, tutorial updates, downloadable resources and creator support links in one trusted place.</p>
+      </div>
+      <nav aria-label="Footer links">
+        {links.map(([label, path]) => (
+          <button key={path} onClick={() => navigate(path)}>{label}</button>
+        ))}
+      </nav>
+      <small>Copyright {new Date().getFullYear()} Rahul Gamer X. All rights reserved.</small>
+    </footer>
   );
 }
 
@@ -537,6 +568,65 @@ function ContactPage({ data, navigate }) {
   );
 }
 
+function PrivacyPage({ navigate }) {
+  return (
+    <SimplePage navigate={navigate} title="Privacy Policy">
+      <section className="policy-block">
+        <p>At Rahul Gamer X, visitor privacy is important. This page explains what information may be collected when you use this website and how it may be used.</p>
+        <h2>Information We Collect</h2>
+        <p>We may collect non-personal information such as browser type, device type, pages visited, referral source and general analytics data. If you contact us through Telegram, YouTube, Instagram or another link, the information you share there is handled by that platform.</p>
+        <h2>Cookies And Advertising</h2>
+        <p>This website may use cookies, web beacons, IP addresses and similar technologies to improve user experience, measure traffic and serve relevant advertising. Third-party vendors, including Google, may use cookies to serve ads based on a user's prior visits to this website or other websites.</p>
+        <p>Users may opt out of personalized advertising by visiting Google Ads Settings. You can also manage cookies in your browser settings.</p>
+        <h2>Third-Party Links</h2>
+        <p>Our posts may include download pages, shortener links, Telegram links, YouTube videos and other external resources. We are not responsible for the privacy practices or content of external websites.</p>
+        <h2>Children's Privacy</h2>
+        <p>Rahul Gamer X is not directed to children under 13. We do not knowingly collect personal information from children.</p>
+        <h2>Updates</h2>
+        <p>We may update this Privacy Policy when needed. The latest version will always be available on this page.</p>
+      </section>
+    </SimplePage>
+  );
+}
+
+function DisclaimerPage({ navigate }) {
+  return (
+    <SimplePage navigate={navigate} title="Disclaimer">
+      <section className="policy-block">
+        <p>Rahul Gamer X publishes gaming, Android modding, educational tutorials, download references and creator updates for informational purposes.</p>
+        <h2>No Warranty</h2>
+        <p>We try to keep information accurate and useful, but we do not guarantee completeness, reliability or availability of any file, tool, tutorial or external link.</p>
+        <h2>Downloads And External Links</h2>
+        <p>Some posts may redirect to external websites, shortener pages, Telegram bots or third-party services. Users should review those pages before downloading or using any file.</p>
+        <h2>Copyright And Ownership</h2>
+        <p>All trademarks, logos, app names and game names belong to their respective owners. If you believe any content violates your rights, please contact us so we can review it.</p>
+        <h2>Use At Your Own Risk</h2>
+        <p>Any modification, installation or use of files shown on this website is done at your own risk. Always follow local laws and platform terms.</p>
+      </section>
+    </SimplePage>
+  );
+}
+
+function TermsPage({ navigate }) {
+  return (
+    <SimplePage navigate={navigate} title="Terms and Conditions">
+      <section className="policy-block">
+        <p>By using Rahul Gamer X, you agree to these basic terms. If you do not agree, please stop using the website.</p>
+        <h2>Website Use</h2>
+        <p>You may browse posts, tutorials and download references for personal and educational use. You must not misuse the website, attempt to break its systems or use content for illegal activity.</p>
+        <h2>Content</h2>
+        <p>Post content, images, descriptions and links may change at any time. We may remove or update content without notice to keep the website clean and useful.</p>
+        <h2>External Services</h2>
+        <p>This website may link to YouTube, Telegram, shortener services, Cloudinary-hosted images and other external services. Their own terms and policies apply when you visit them.</p>
+        <h2>Limitation Of Liability</h2>
+        <p>Rahul Gamer X is not responsible for losses, device issues, account problems or damages caused by external files, third-party links or user actions.</p>
+        <h2>Contact</h2>
+        <p>For questions about these terms, please use the Contact Us page.</p>
+      </section>
+    </SimplePage>
+  );
+}
+
 function SimplePage({ navigate, title, children }) {
   return (
     <Shell navigate={navigate}>
@@ -622,6 +712,9 @@ function getRoute() {
   if (path === "/admin" || path === "/admin.html") return { page: "admin" };
   if (path === "/about" || path === "/about.html") return { page: "about" };
   if (path === "/contact" || path === "/contact.html") return { page: "contact" };
+  if (path === "/privacy-policy" || path === "/privacy" || path === "/privacy-policy.html") return { page: "privacy" };
+  if (path === "/disclaimer" || path === "/disclaimer.html") return { page: "disclaimer" };
+  if (path === "/terms-and-conditions" || path === "/terms" || path === "/terms-and-conditions.html") return { page: "terms" };
   if (path === "/favorites" || path === "/favorites.html") return { page: "favorites" };
   if (path === "/download" || path === "/download.html") return { page: "download", id: params.get("id") };
   if (path === "/post" || path === "/post.html") return { page: "home", postId: params.get("id") };
