@@ -1,18 +1,20 @@
 :root {
-  --bg: #1f242c;
-  --panel: #242a33;
-  --panel-soft: #202630;
-  --line: rgba(148, 163, 184, 0.22);
-  --text: #d9e2f0;
-  --muted: #95a1b7;
+  --bg: #0b0f17;
+  --panel: #141b27;
+  --panel-soft: #101722;
+  --line: rgba(178, 196, 230, 0.18);
+  --text: #eef5ff;
+  --muted: #a5b4ca;
   --blue: #00d2ff;
   --pink: #ff2eea;
   --red: #ef1f2d;
-  --topbar-bg: rgba(31, 36, 44, 0.92);
-  --card-bg: rgba(255,255,255,.04);
-  --card-strong: rgba(10, 14, 24, .72);
-  --rail-bg: rgba(20, 24, 32, .72);
-  --hero-bg: linear-gradient(140deg, rgba(34,40,50,.78), rgba(29,34,43,.62));
+  --gold: #ffd166;
+  --mint: #2fffc3;
+  --topbar-bg: rgba(8, 12, 20, 0.76);
+  --card-bg: rgba(255,255,255,.065);
+  --card-strong: rgba(13, 18, 30, .78);
+  --rail-bg: rgba(9, 13, 22, .68);
+  --hero-bg: linear-gradient(145deg, rgba(12,18,30,.88), rgba(18,18,38,.74) 48%, rgba(8,14,22,.9));
   --input-bg: #0b0f1a;
   --input-text: #ffffff;
   --soft-text: #c7d0df;
@@ -26,7 +28,7 @@
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  background: #1f242c;
+  background: #0b0f17;
   color: var(--text);
   font: 14px/1.55 Inter, system-ui, -apple-system, Segoe UI, sans-serif;
 }
@@ -50,25 +52,27 @@ button, a, input, textarea, select {
 .app-shell {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 12% 8%, rgba(0,210,255,.08), transparent 26%),
-    radial-gradient(circle at 85% 15%, rgba(255,46,234,.08), transparent 24%),
+    linear-gradient(135deg, rgba(255,209,102,.045), transparent 22%),
+    radial-gradient(circle at 12% 8%, rgba(0,210,255,.16), transparent 28%),
+    radial-gradient(circle at 82% 14%, rgba(255,46,234,.14), transparent 27%),
+    radial-gradient(circle at 50% 105%, rgba(47,255,195,.08), transparent 30%),
     var(--bg);
   color: var(--text);
   position: relative;
   overflow-x: hidden;
 }
 .app-shell.light {
-  --bg: #f7f8fc;
+  --bg: #f8fbff;
   --panel: #ffffff;
   --panel-soft: #eef2fb;
-  --line: rgba(42, 54, 78, 0.18);
+  --line: rgba(42, 54, 78, 0.16);
   --text: #17223a;
   --muted: #61708b;
-  --topbar-bg: rgba(255,255,255,.9);
+  --topbar-bg: rgba(255,255,255,.82);
   --card-bg: rgba(23, 34, 58, .045);
   --card-strong: rgba(255,255,255,.78);
   --rail-bg: rgba(255,255,255,.78);
-  --hero-bg: linear-gradient(140deg, rgba(255,255,255,.92), rgba(236,242,255,.82));
+  --hero-bg: linear-gradient(145deg, rgba(255,255,255,.94), rgba(238,245,255,.86) 48%, rgba(255,250,239,.76));
   --input-bg: #ffffff;
   --input-text: #17223a;
   --soft-text: #3f4f6f;
@@ -87,13 +91,13 @@ button, a, input, textarea, select {
 }
 .luxury-particles span {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  border-radius: 45% 55% 48% 52%;
   background: var(--blue);
-  box-shadow: 0 0 16px var(--blue);
-  opacity: .55;
-  animation: particleFloat 12s linear infinite;
+  box-shadow: 0 0 18px var(--blue), 0 0 34px rgba(0,210,255,.25);
+  opacity: .62;
+  animation: particleFloat 14s linear infinite;
 }
 .luxury-particles span:nth-child(1) { left: 8%; animation-delay: 0s; }
 .luxury-particles span:nth-child(2) { left: 16%; animation-delay: -8s; background: var(--pink); box-shadow: 0 0 16px var(--pink); }
@@ -109,18 +113,30 @@ button, a, input, textarea, select {
 .luxury-particles span:nth-child(12) { left: 96%; animation-delay: -2s; }
 
 .topbar {
-  height: 76px;
+  height: 74px;
   display: flex;
   align-items: center;
   gap: 18px;
   padding: 0 28px;
   border-bottom: 1px solid var(--line);
   background: var(--topbar-bg);
-  box-shadow: 0 2px 0 #6758ff, 0 3px 0 var(--blue);
+  box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 16px 44px -38px var(--blue);
   position: sticky;
   top: 0;
   z-index: 10;
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(22px) saturate(170%);
+}
+.topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--pink), var(--blue), var(--gold), var(--mint), var(--pink));
+  background-size: 260% 100%;
+  box-shadow: 0 0 22px rgba(0,210,255,.55);
+  animation: shimmerLine 5.5s ease-in-out infinite;
 }
 .brand-btn, .icon-btn {
   border: 0;
@@ -129,8 +145,9 @@ button, a, input, textarea, select {
 }
 .brand-btn {
   font-weight: 900;
-  font-size: 1.08rem;
-  background: linear-gradient(90deg, var(--text), var(--blue), var(--pink), var(--text));
+  font-size: 1.14rem;
+  letter-spacing: .02em;
+  background: linear-gradient(90deg, var(--text), var(--blue), var(--gold), var(--pink), var(--text));
   background-size: 260% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -138,7 +155,14 @@ button, a, input, textarea, select {
   animation: brandShine 4s ease-in-out infinite;
 }
 .icon-btn { width: 38px; height: 38px; border-radius: 12px; }
-.icon-btn:hover { background: rgba(255,255,255,.06); }
+.icon-btn {
+  border: 1px solid transparent;
+}
+.icon-btn:hover {
+  background: var(--card-bg);
+  border-color: color-mix(in srgb, var(--blue) 40%, var(--line));
+  box-shadow: 0 16px 35px -28px var(--blue);
+}
 .app-shell.light .icon-btn:hover { background: rgba(23,34,58,.08); }
 .icon-btn {
   display: inline-flex;
@@ -152,31 +176,38 @@ button, a, input, textarea, select {
   color: var(--muted);
   flex: 1;
   max-width: 520px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-bg) 78%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
 }
 
 .layout { display: flex; min-height: calc(100vh - 76px); }
 .layout, .topbar { position: relative; z-index: 1; }
 .rail {
-  width: 74px;
-  border-right: 1px solid rgba(138, 43, 226, 0.7);
+  width: 82px;
+  border-right: 1px solid rgba(0, 210, 255, 0.24);
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-top: 24px;
+  padding-top: 28px;
   align-items: center;
   transition: width .22s ease, background .22s ease;
   background:
-    linear-gradient(180deg, rgba(138,43,226,.12), transparent 35%),
+    linear-gradient(180deg, rgba(0,210,255,.12), transparent 34%),
+    linear-gradient(0deg, rgba(255,46,234,.1), transparent 36%),
     var(--rail-bg);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(20px) saturate(160%);
 }
 .rail button {
-  width: 46px;
-  height: 38px;
+  width: 50px;
+  height: 46px;
   color: var(--muted);
   background: transparent;
   border: 0;
-  border-radius: 12px;
+  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -185,19 +216,23 @@ button, a, input, textarea, select {
   white-space: nowrap;
   transition: width .2s ease, background .2s ease, color .2s ease, transform .2s ease;
 }
-.rail button:hover { background: rgba(138, 43, 226, 0.18); color: var(--text); }
-.rail button:hover { transform: translateX(2px); }
+.rail button:hover {
+  background: linear-gradient(135deg, rgba(0,210,255,.18), rgba(255,46,234,.12));
+  color: var(--text);
+  box-shadow: 0 14px 32px -24px var(--blue);
+  transform: translateX(3px);
+}
 .rail button span { display: none; font-weight: 700; }
-.rail.expanded { width: 210px; align-items: stretch; padding-inline: 14px; }
+.rail.expanded { width: 224px; align-items: stretch; padding-inline: 14px; }
 .rail.expanded button { width: 100%; justify-content: flex-start; padding: 0 12px; }
 .rail.expanded button span { display: inline; }
 
 .content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 28px;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 30px;
   width: 100%;
-  padding: 28px;
+  padding: 32px;
   position: relative;
   isolation: isolate;
 }
@@ -216,25 +251,41 @@ button, a, input, textarea, select {
 .main-column { min-width: 0; }
 .hero-panel {
   position: relative;
-  min-height: 310px;
+  min-height: 360px;
   display: grid;
   place-items: center;
   align-content: center;
   gap: 20px;
-  border-bottom: 4px solid #f35dff;
+  border: 1px solid color-mix(in srgb, var(--blue) 28%, var(--line));
   background: var(--hero-bg);
   overflow: hidden;
   isolation: isolate;
-  border-radius: 0 0 18px 18px;
-  box-shadow: inset 0 -1px 0 var(--line), 0 28px 70px -55px var(--blue);
+  border-radius: 30px;
+  box-shadow: 0 32px 90px -65px var(--blue), inset 0 1px 0 rgba(255,255,255,.09);
 }
 .hero-panel::before {
-  content: none;
+  content: "";
+  position: absolute;
+  inset: -40%;
+  background:
+    conic-gradient(from 120deg, transparent, rgba(0,210,255,.18), transparent, rgba(255,46,234,.16), transparent),
+    radial-gradient(circle, rgba(255,209,102,.12), transparent 28%);
+  animation: spin 16s linear infinite;
+  z-index: -2;
+}
+.hero-panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 28px 24px 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--blue), var(--pink), transparent);
+  box-shadow: 0 0 24px rgba(255,209,102,.42);
 }
 .hero-panel h1, .hero-panel h2 {
   margin: 0;
   text-transform: uppercase;
-  font-size: clamp(2.2rem, 6vw, 4rem);
+  font-size: clamp(2.4rem, 6.3vw, 4.5rem);
   letter-spacing: .06em;
   text-align: center;
   line-height: 1.05;
@@ -245,7 +296,7 @@ button, a, input, textarea, select {
 }
 .hero-panel h1 {
   color: var(--blue);
-  text-shadow: 0 0 18px var(--blue), 0 8px 26px rgba(0,0,0,.28);
+  text-shadow: 0 0 18px var(--blue), 0 0 46px rgba(0,210,255,.28), 0 8px 26px rgba(0,0,0,.28);
 }
 .hero-panel h1 span { animation: textFloat 2.6s ease-in-out infinite alternate, glitchGlow 3s steps(2, end) infinite; }
 .hero-panel h2 {
@@ -259,12 +310,17 @@ button, a, input, textarea, select {
   align-items: center;
   color: var(--soft-text);
   animation: fadeLift .7s ease both;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--card-bg) 82%, transparent);
+  backdrop-filter: blur(12px);
 }
 .app-shell.light .latest-chip { color: var(--text); }
 .latest-chip span {
-  background: linear-gradient(90deg, #ff2eea, #8a2be2);
+  background: linear-gradient(90deg, #ff2eea, #8a2be2, #00d2ff);
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 999px;
   color: #fff;
   font-weight: 800;
   box-shadow: 0 14px 32px -20px var(--pink);
@@ -276,10 +332,11 @@ button, a, input, textarea, select {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 1.1rem;
-  margin: 28px 0 16px;
+  font-size: 1.14rem;
+  margin: 32px 0 16px;
   color: var(--text);
   animation: fadeLift .6s ease both;
+  letter-spacing: .02em;
 }
 .section-title::first-letter { color: var(--blue); }
 .section-title span {
@@ -295,10 +352,16 @@ button, a, input, textarea, select {
   display: grid;
   grid-template-columns: 300px minmax(0, 1fr);
   gap: 20px;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line);
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--panel) 84%, transparent), color-mix(in srgb, var(--panel-soft) 75%, transparent)),
+    radial-gradient(circle at 0 0, rgba(0,210,255,.12), transparent 34%);
+  box-shadow: 0 24px 60px -52px var(--blue), inset 0 1px 0 rgba(255,255,255,.06);
   animation: cardReveal .58s ease both;
   isolation: isolate;
+  overflow: hidden;
 }
 .post-card::before {
   content: "";
@@ -314,14 +377,16 @@ button, a, input, textarea, select {
   pointer-events: none;
 }
 .post-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--blue) 44%, var(--line));
+  box-shadow: 0 28px 80px -54px var(--blue), 0 0 0 1px rgba(255,255,255,.03) inset;
 }
 .post-card:nth-child(2n) { animation-delay: .04s; }
 .post-card:nth-child(3n) { animation-delay: .08s; }
 .favorite-btn {
   position: absolute;
-  top: 16px;
-  right: 10px;
+  top: 20px;
+  right: 20px;
   width: 42px;
   height: 42px;
   border: 1px solid var(--line);
@@ -356,9 +421,12 @@ button, a, input, textarea, select {
   width: 100%;
   aspect-ratio: 16 / 9;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 16px;
   background: var(--image-bg);
+  box-shadow: 0 18px 40px -30px rgba(0,0,0,.85);
+  transition: transform .35s ease, filter .35s ease;
 }
+.post-card:hover img { transform: scale(1.025); filter: saturate(1.12) contrast(1.04); }
 .post-card small, .post-card time { color: var(--muted); }
 .post-card small {
   display: inline-block;
@@ -372,7 +440,7 @@ button, a, input, textarea, select {
   background: transparent;
   color: var(--text);
   font-weight: 800;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   padding: 6px 0;
   background-image: linear-gradient(90deg, var(--text), var(--blue), var(--pink));
   background-size: 240% 100%;
@@ -393,22 +461,39 @@ button, a, input, textarea, select {
 }
 .story-grid { display: grid; gap: 10px; }
 
-.sidebar { min-width: 0; }
+.sidebar {
+  min-width: 0;
+  align-self: start;
+  position: sticky;
+  top: 104px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 26px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--panel) 80%, transparent), color-mix(in srgb, var(--panel-soft) 70%, transparent)),
+    radial-gradient(circle at 100% 0, rgba(255,46,234,.12), transparent 36%);
+  box-shadow: 0 28px 76px -58px var(--pink), inset 0 1px 0 rgba(255,255,255,.06);
+  backdrop-filter: blur(16px);
+}
 .popular-list { display: grid; gap: 14px; }
 .popular-list button {
   display: grid;
   grid-template-columns: 42px 1fr;
   gap: 12px;
   text-align: left;
-  background: transparent;
-  border: 0;
+  background: color-mix(in srgb, var(--card-bg) 80%, transparent);
+  border: 1px solid transparent;
   color: var(--text);
   border-radius: 14px;
-  padding: 8px;
+  padding: 10px;
   transition: background .2s ease, transform .2s ease;
 }
-.popular-list button:hover { background: var(--card-bg); transform: translateX(3px); }
-.popular-list b { color: var(--muted); font-size: 1.1rem; }
+.popular-list button:hover {
+  background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+  border-color: color-mix(in srgb, var(--blue) 38%, var(--line));
+  transform: translateX(3px);
+}
+.popular-list b { color: var(--blue); font-size: 1.1rem; }
 .popular-list span { transition: color .2s ease; }
 .popular-list span:hover { color: var(--blue); }
 .social-stack {
@@ -434,10 +519,11 @@ button, a, input, textarea, select {
 }
 .video-box {
   margin-top: 22px;
-  border: 1px solid rgba(138, 43, 226, .6);
-  border-radius: 18px;
+  border: 1px solid color-mix(in srgb, var(--pink) 52%, var(--line));
+  border-radius: 22px;
   overflow: hidden;
-  background: color-mix(in srgb, var(--panel) 86%, #8a2be2 14%);
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--panel) 88%, #8a2be2 12%), color-mix(in srgb, var(--panel-soft) 86%, #00d2ff 8%));
   box-shadow: 0 24px 55px -42px var(--pink);
 }
 .floating-video {
@@ -446,17 +532,32 @@ button, a, input, textarea, select {
   box-shadow: 0 24px 45px -22px rgba(138, 43, 226, .9);
 }
 .video-box iframe { width: 100%; aspect-ratio: 16/9; border: 0; display: block; }
-.video-title { padding: 12px 16px; color: var(--blue); text-transform: uppercase; font-weight: 800; }
-.video-box a { display: block; text-align: center; padding: 12px; background: #8a2be2; text-decoration: none; font-weight: 800; }
+.video-title {
+  padding: 12px 16px;
+  color: var(--blue);
+  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.video-box a {
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background: linear-gradient(90deg, #8a2be2, #ef1f2d);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 900;
+}
 
 .full-post {
   background: var(--post-bg);
   color: var(--post-text);
-  border-radius: 22px;
+  border-radius: 28px;
   padding: clamp(18px, 4vw, 36px);
-  box-shadow: 0 24px 55px var(--shadow);
+  box-shadow: 0 34px 88px -52px var(--blue), 0 24px 55px var(--shadow);
   border: 1px solid var(--line);
   animation: cardReveal .7s ease both;
+  overflow: hidden;
 }
 .full-post h1 {
   text-align: center;
@@ -504,9 +605,9 @@ button, a, input, textarea, select {
   align-items: center;
   text-decoration: none;
   border: 0;
-  border-radius: 14px;
+  border-radius: 999px;
   padding: 15px 22px;
-  background: linear-gradient(90deg, #ef1f2d, #8a2be2);
+  background: linear-gradient(90deg, #ef1f2d, #8a2be2, #00d2ff);
   color: white;
   font-weight: 900;
   box-shadow: 0 18px 38px -24px #8a2be2;
@@ -528,8 +629,10 @@ button, a, input, textarea, select {
   max-width: 860px;
   margin: 0 auto;
   padding: clamp(22px, 5vw, 48px);
-  border-radius: 24px;
-  background: color-mix(in srgb, var(--panel) 80%, transparent);
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, color-mix(in srgb, var(--panel) 86%, transparent), color-mix(in srgb, var(--panel-soft) 76%, transparent)),
+    radial-gradient(circle at 100% 0, rgba(0,210,255,.12), transparent 35%);
   border: 1px solid var(--line);
   box-shadow: 0 24px 65px -48px var(--blue);
   animation: cardReveal .65s ease both;
@@ -837,42 +940,52 @@ button, a, input, textarea, select {
 
 @media (max-width: 900px) {
   .content-grid, .admin-grid-page { grid-template-columns: 1fr; }
-  .layout { display: block; padding-bottom: 72px; }
+  .layout { display: block; padding-bottom: 86px; min-height: calc(100vh - 64px); }
   .rail {
     position: fixed;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
     width: auto;
-    height: 58px;
-    border: 1px solid var(--line);
-    border-radius: 22px;
+    height: 66px;
+    border: 1px solid color-mix(in srgb, var(--blue) 28%, var(--line));
+    border-radius: 24px;
     flex-direction: row;
     justify-content: space-around;
-    padding: 7px;
+    padding: 8px;
     z-index: 60;
-    box-shadow: 0 18px 45px -28px rgba(0,0,0,.8);
+    box-shadow: 0 18px 48px -24px rgba(0,0,0,.82), inset 0 1px 0 rgba(255,255,255,.08);
   }
   .rail.expanded { width: auto; align-items: center; padding: 7px; }
   .rail button, .rail.expanded button {
-    width: 48px;
-    height: 44px;
+    width: 52px;
+    height: 48px;
     justify-content: center;
     padding: 0;
   }
   .rail button span, .rail.expanded button span { display: none; }
   .topbar { padding: 0 12px; gap: 10px; height: 64px; }
   .brand-btn { font-size: 1rem; max-width: 132px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .search-pill { min-height: 40px; padding: 0 12px; flex: 0 1 42px; }
   .search-pill span { display: none; }
-  .content-grid { padding: 14px; gap: 18px; }
-  .hero-panel { min-height: 250px; border-radius: 16px; }
-  .hero-panel h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
-  .hero-panel h2 { font-size: clamp(1.8rem, 9vw, 2.6rem); }
-  .latest-chip { flex-direction: column; text-align: center; padding-inline: 12px; }
+  .content-grid { padding: 16px; gap: 20px; }
+  .content-grid::before { inset-inline: 16px; }
+  .hero-panel { min-height: 280px; border-radius: 24px; padding: 24px 14px; }
+  .hero-panel h1 { font-size: clamp(2rem, 11vw, 3.1rem); }
+  .hero-panel h2 { font-size: clamp(1.65rem, 9.5vw, 2.6rem); }
+  .latest-chip { flex-direction: column; text-align: center; padding: 10px 12px; border-radius: 20px; }
+  .section-title { margin-top: 24px; }
   .post-card, .post-card:not(.pinned) { grid-template-columns: 1fr; }
+  .post-card { padding: 12px; border-radius: 20px; gap: 14px; }
+  .post-card img { border-radius: 16px; }
+  .post-title-btn { font-size: 1.08rem; }
   .favorite-btn { top: 22px; right: 12px; }
-  .sidebar { padding-bottom: 18px; }
+  .sidebar { padding: 14px; position: relative; top: auto; }
+  .popular-list { gap: 10px; }
+  .floating-video { position: relative; top: auto; }
   .simple-page { padding: 14px; }
+  .full-post { border-radius: 22px; }
+  .full-post-image { border-radius: 18px; margin: 20px auto; }
   .contact-buttons a { flex: 1 1 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; }
   .admin-page { padding: 14px; }
   .admin-sidebar { position: fixed; left: 12px; bottom: 12px; top: auto; min-height: auto; width: calc(100% - 24px); flex-direction: row; z-index: 50; overflow-x: auto; }
@@ -881,6 +994,31 @@ button, a, input, textarea, select {
   .admin-sidebar button span { display: none !important; }
   .admin-workspace { padding-bottom: 88px; }
   .extra-button-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  body { font-size: 13px; }
+  .topbar .icon-btn { width: 36px; height: 36px; border-radius: 13px; }
+  .brand-btn { max-width: 150px; }
+  .content-grid { padding: 12px; }
+  .hero-panel { min-height: 245px; }
+  .hero-panel h1 { font-size: clamp(1.72rem, 10vw, 2.55rem); }
+  .hero-panel h2 { font-size: clamp(1.45rem, 8.5vw, 2.15rem); }
+  .latest-chip b {
+    max-width: 260px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .post-card p {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .sidebar .section-title:first-child { margin-top: 8px; }
+  .full-post h1 { font-size: clamp(1.8rem, 10vw, 2.5rem); }
+  .download-card { border-radius: 22px; padding: 26px 18px; }
 }
 
 @keyframes spin {
