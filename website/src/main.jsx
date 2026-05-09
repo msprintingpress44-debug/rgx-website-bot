@@ -82,7 +82,7 @@ function App() {
 
 function Shell({ children, navigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(() => localStorage.getItem("rgxTheme") || "dark");
+  const [theme, setTheme] = useState(() => localStorage.getItem("rgxTheme") || "light");
   const navItems = [
     { label: "Home", path: "/", icon: "home" },
     { label: "Favorites", path: "/favorites", icon: "heart" },
