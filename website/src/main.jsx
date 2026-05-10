@@ -87,6 +87,7 @@ function Shell({ children, navigate }) {
   const navItems = [
     { label: "Home", path: "/", icon: "home" },
     { label: "Favorites", path: "/favorites", icon: "heart" },
+    { label: "Categories", path: "/?q=Android", icon: "dashboard" },
     { label: "About", path: "/about", icon: "user" },
     { label: "Contact", path: "/contact", icon: "mail" },
     { label: "Privacy Policy", path: "/privacy-policy", icon: "link" },
@@ -141,6 +142,7 @@ function Shell({ children, navigate }) {
 function SiteFooter({ navigate }) {
   const links = [
     ["Home", "/"],
+    ["Categories", "/?q=Android"],
     ["About Us", "/about"],
     ["Contact Us", "/contact"],
     ["Privacy Policy", "/privacy-policy"],

@@ -620,42 +620,44 @@ button, a, input, textarea, select {
 }
 .site-footer {
   margin: auto 0 0;
-  padding: 34px 32px;
+  padding: 38px 32px 24px;
   border: 0;
   border-radius: 0;
   background: #0b0f17;
   color: #e5e7eb;
   box-shadow: none;
   display: grid;
-  grid-template-columns: minmax(220px, 1fr) minmax(240px, 1.4fr);
-  gap: 18px 28px;
+  grid-template-columns: minmax(260px, 1fr) minmax(260px, 1.2fr);
+  gap: 24px 34px;
   align-items: start;
 }
 .site-footer b {
   display: block;
-  margin-bottom: 8px;
-  font-size: 1.08rem;
+  margin-bottom: 10px;
+  font-size: 1.18rem;
   color: #ffffff;
   background: none;
   animation: none;
 }
 .site-footer p {
   margin: 0;
-  color: #aeb7c7;
+  color: #b7c0cf;
   max-width: 520px;
+  line-height: 1.7;
 }
 .site-footer nav {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 10px;
+  gap: 11px;
 }
 .site-footer button {
   border: 1px solid rgba(255,255,255,.14);
   border-radius: 4px;
-  padding: 9px 13px;
+  padding: 10px 14px;
   color: #e5e7eb;
   background: rgba(255,255,255,.04);
+  font-weight: 700;
 }
 .site-footer button:hover {
   transform: none;
@@ -664,9 +666,12 @@ button, a, input, textarea, select {
 }
 .site-footer small {
   grid-column: 1 / -1;
+  display: block;
+  text-align: center;
   color: #9ca3af;
   border-top: 1px solid rgba(255,255,255,.12);
-  padding-top: 14px;
+  padding-top: 18px;
+  margin-top: 2px;
 }
 .download-portal {
   width: 100%;
@@ -1014,9 +1019,10 @@ button, a, input, textarea, select {
     margin: 0;
     grid-template-columns: 1fr;
     border-radius: 0;
-    padding: 18px;
+    padding: 24px 18px 20px;
   }
-  .site-footer nav { justify-content: flex-start; }
+  .site-footer nav { justify-content: center; }
+  .site-footer b, .site-footer p { text-align: center; margin-inline: auto; }
   .full-post { border-radius: 8px; }
   .full-post-image { border-radius: 6px; margin: 20px auto; }
   .contact-buttons a { flex: 1 1 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; }
