@@ -156,6 +156,17 @@ button, a, input, textarea, select {
   background: color-mix(in srgb, var(--card-bg) 78%, transparent);
   box-shadow: none;
 }
+.search-pill input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--text);
+  background: transparent;
+}
+.search-pill input::placeholder {
+  color: var(--muted);
+}
 
 .layout { display: flex; min-height: calc(100vh - 76px); }
 .layout, .topbar { position: relative; z-index: 1; }
@@ -978,7 +989,11 @@ button, a, input, textarea, select {
     padding: 0;
     justify-content: center;
   }
-  .search-pill span { display: none; }
+  .search-pill input {
+    width: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
   .content-grid { padding: 16px; gap: 20px; }
   .content-grid::before { inset-inline: 16px; }
   .hero-panel { min-height: 230px; border-radius: 8px; padding: 24px 14px; }

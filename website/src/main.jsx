@@ -77,12 +77,13 @@ function App() {
   if (route.page === "terms") return <TermsPage navigate={navigate} />;
   if (route.page === "favorites") return <FavoritesPage {...pageProps} />;
   if (route.page === "download") return <DownloadPage {...pageProps} id={route.id} />;
-  return <HomePage {...pageProps} postId={route.postId} />;
+  return <HomePage {...pageProps} postId={route.postId} query={route.query} />;
 }
 
 function Shell({ children, navigate }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [theme, setTheme] = useState(() => localStorage.getItem("rgxTheme") || "light");
+  const [searchText, setSearchText] = useState(() => new URLSearchParams(location.search).get("q") || "");
   const navItems = [
     { label: "Home", path: "/", icon: "home" },
     { label: "Favorites", path: "/favorites", icon: "heart" },
@@ -99,6 +100,12 @@ function Shell({ children, navigate }) {
     setTheme(next);
   }
 
+  function submitSearch(event) {
+    event.preventDefault();
+    const query = searchText.trim();
+    navigate(query ? `/?q=${encodeURIComponent(query)}` : "/");
+  }
+
   return (
     <div className={`app-shell ${theme}`}>
       <div className="luxury-particles" aria-hidden="true">
@@ -107,7 +114,10 @@ function Shell({ children, navigate }) {
       <header className="topbar">
         <button className="icon-btn" onClick={() => setMenuOpen((value) => !value)} aria-label="Menu"><Icon name="menu" /></button>
         <button className="brand-btn" onClick={() => navigate("/")}>Rahul Gamer X</button>
-        <div className="search-pill"><Icon name="search" /> <span>e.g. GTA SA Mods, Dialog File</span></div>
+        <form className="search-pill" onSubmit={submitSearch}>
+          <Icon name="search" />
+          <input value={searchText} onChange={(event) => setSearchText(event.target.value)} placeholder="e.g. GTA SA Mods, Dialog File" aria-label="Search posts" />
+        </form>
         <button className="icon-btn theme-toggle" onClick={toggleTheme} aria-label="Toggle theme"><Icon name={theme === "dark" ? "moon" : "sun"} /></button>
       </header>
       <div className="layout">
@@ -153,8 +163,9 @@ function SiteFooter({ navigate }) {
   );
 }
 
-function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
+function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite, query = "" }) {
   const posts = useMemo(() => sortedPosts(data.posts), [data.posts]);
+  const filteredPosts = useMemo(() => filterPosts(posts, query), [posts, query]);
   const currentPost = postId ? posts.find((post) => String(post.id) === String(postId)) : null;
   const pinned = posts.find((post) => post.pinned) || posts[0];
 
@@ -167,10 +178,12 @@ function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
           ) : (
             <>
               <SectionTitle title="Pinned Post" />
-              {pinned ? <PostCard post={pinned} pinned navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} /> : <Empty text="No post published yet." />}
-              <SectionTitle title="All Story" />
+              {!query && pinned ? <PostCard post={pinned} pinned navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} /> : null}
+              {query && <Empty text={`Search results for "${query}"`} />}
+              <SectionTitle title="Recent Posts" />
               <div className="story-grid">
-                {posts.map((post) => <PostCard key={post.id} post={post} navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />)}
+                {filteredPosts.map((post) => <PostCard key={post.id} post={post} navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />)}
+                {!filteredPosts.length && <Empty text="No matching posts found." />}
               </div>
             </>
           )}
@@ -179,6 +192,14 @@ function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
       </main>
     </Shell>
   );
+}
+
+function filterPosts(posts, query = "") {
+  const cleanQuery = String(query).trim().toLowerCase();
+  if (!cleanQuery) return posts;
+  return posts.filter((post) => [post.title, post.category, post.description, post.subtitle]
+    .filter(Boolean)
+    .some((value) => String(value).toLowerCase().includes(cleanQuery)));
 }
 
 function Hero({ latest }) {
@@ -720,7 +741,7 @@ function getRoute() {
   if (path === "/favorites" || path === "/favorites.html") return { page: "favorites" };
   if (path === "/download" || path === "/download.html") return { page: "download", id: params.get("id") };
   if (path === "/post" || path === "/post.html") return { page: "home", postId: params.get("id") };
-  return { page: "home", postId: params.get("post") || params.get("id") };
+  return { page: "home", postId: params.get("post") || params.get("id"), query: params.get("q") || "" };
 }
 
 createRoot(document.getElementById("root")).render(<App />);
