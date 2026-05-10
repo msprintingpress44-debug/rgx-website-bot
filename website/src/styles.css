@@ -48,6 +48,13 @@ button, a, input, textarea, select {
   stroke-linejoin: round;
   flex: 0 0 auto;
 }
+.brand-icon {
+  width: 21px;
+  height: 21px;
+  fill: currentColor;
+  stroke: none;
+  flex: 0 0 auto;
+}
 
 .app-shell {
   min-height: 100vh;
@@ -561,6 +568,44 @@ button, a, input, textarea, select {
   color: var(--post-soft);
   font-size: 1.06rem;
 }
+.post-social-row {
+  max-width: 800px;
+  margin: 24px auto 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.post-social-row > span {
+  color: var(--muted);
+  font-weight: 800;
+}
+.post-social-row > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.social-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.social-icon:hover {
+  filter: brightness(.95);
+}
+.social-icon.whatsapp, .whatsapp { background: #25d366; }
+.social-icon.instagram, .instagram { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af, #515bd4); }
+.social-icon.youtube, .youtube { background: #ff0000; }
+.social-icon.telegram, .telegram { background: #229ed9; }
 .post-buttons {
   max-width: 800px;
   margin: 28px auto 0;
@@ -768,6 +813,7 @@ button, a, input, textarea, select {
 .telegram { background: #1f8ef1; box-shadow: 0 12px 25px -12px #1f8ef1; }
 .youtube { background: #ff0000; box-shadow: 0 12px 25px -12px #ff0000; }
 .instagram { background: linear-gradient(135deg, #fd5949, #d6249f, #285aeb); }
+.whatsapp { background: #25d366; box-shadow: 0 12px 25px -12px #25d366; }
 
 .admin-page {
   min-height: 100vh;
@@ -1025,6 +1071,7 @@ button, a, input, textarea, select {
   .site-footer b, .site-footer p { text-align: center; margin-inline: auto; }
   .full-post { border-radius: 8px; }
   .full-post-image { border-radius: 6px; margin: 20px auto; }
+  .post-social-row { align-items: flex-start; flex-direction: column; }
   .contact-buttons a { flex: 1 1 100%; justify-content: center; display: inline-flex; align-items: center; gap: 8px; }
   .admin-page { padding: 14px; }
   .admin-sidebar { position: fixed; left: 12px; bottom: 12px; top: auto; min-height: auto; width: calc(100% - 24px); flex-direction: row; z-index: 50; overflow-x: auto; }

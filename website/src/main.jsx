@@ -176,7 +176,7 @@ function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite, query =
       <main className="content-grid">
         <section className="main-column">
           {currentPost ? (
-            <PostView post={currentPost} files={data.files} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
+            <PostView post={currentPost} files={data.files} socialLinks={data.settings?.socialLinks || {}} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
           ) : (
             <>
               <SectionTitle title="Pinned Post" />
@@ -253,6 +253,7 @@ function Sidebar({ posts, data, navigate }) {
         {links.telegram && <a href={links.telegram} target="_blank" rel="noreferrer"><Icon name="send" /> Telegram</a>}
         {links.youtube && <a href={links.youtube} target="_blank" rel="noreferrer"><Icon name="play" /> YouTube</a>}
         {links.instagram && <a href={links.instagram} target="_blank" rel="noreferrer"><Icon name="camera" /> Instagram</a>}
+        {links.whatsapp && <a href={normalizeSocialHref("whatsapp", links.whatsapp)} target="_blank" rel="noreferrer"><BrandIcon name="whatsapp" /> WhatsApp</a>}
       </div>
       {video && <VideoBox link={video} floating />}
     </aside>
@@ -271,7 +272,7 @@ function VideoBox({ link, floating = false }) {
   );
 }
 
-function PostView({ post, files = [], favoriteIds = [], toggleFavorite = () => {} }) {
+function PostView({ post, files = [], socialLinks = {}, favoriteIds = [], toggleFavorite = () => {} }) {
   const buttons = getPostButtons(post, files);
   const image = post.image || post.imageUrl || post.logo;
   const isFavorite = favoriteIds.includes(String(post.id));
@@ -286,6 +287,7 @@ function PostView({ post, files = [], favoriteIds = [], toggleFavorite = () => {
       ) : (
         <p className="post-description">{post.description}</p>
       )}
+      <SocialLinksRow links={socialLinks} />
       {!!buttons.length && (
         <div className="post-buttons">
           {buttons.map((button, index) => <a key={`${button.url}-${index}`} className={index === 0 ? "download-btn" : "soft-btn"} href={button.url} target="_blank" rel="noreferrer">{button.text || "Open Link"}</a>)}
@@ -293,6 +295,42 @@ function PostView({ post, files = [], favoriteIds = [], toggleFavorite = () => {
       )}
     </article>
   );
+}
+
+function SocialLinksRow({ links = {} }) {
+  const items = [
+    ["whatsapp", "WhatsApp", links.whatsapp],
+    ["instagram", "Instagram", links.instagram],
+    ["youtube", "YouTube", links.youtube],
+    ["telegram", "Telegram", links.telegram]
+  ].filter(([, , url]) => url);
+
+  if (!items.length) return null;
+
+  return (
+    <div className="post-social-row" aria-label="Official social links">
+      <span>Follow Rahul Gamer X</span>
+      <div>
+        {items.map(([key, label, url]) => (
+          <a className={`social-icon ${key}`} key={key} href={normalizeSocialHref(key, url)} target="_blank" rel="noreferrer" aria-label={label} title={label}>
+            <BrandIcon name={key} />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function normalizeSocialHref(key, value = "") {
+  const raw = String(value || "").trim();
+  if (!raw) return "#";
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (key === "whatsapp") {
+    const number = raw.replace(/[^\d]/g, "");
+    if (number) return `https://wa.me/${number}`;
+  }
+  if (key === "telegram") return `https://t.me/${raw.replace(/^@/, "")}`;
+  return raw;
 }
 
 function FavoritesPage({ data, navigate, favoriteIds, toggleFavorite }) {
@@ -494,7 +532,7 @@ function AdminPage({ data, saveData, refresh, navigate }) {
           <section className="admin-panel wide-panel">
             <h2>Support Links</h2>
             <form className="admin-form" onSubmit={saveSupport}>
-              {["telegram", "youtube", "instagram", "video"].map((key) => (
+              {["telegram", "youtube", "instagram", "whatsapp", "video"].map((key) => (
                 <input key={key} value={support[key] || ""} onChange={(e) => setSupport({ ...support, [key]: e.target.value })} placeholder={`${key} link`} />
               ))}
               <button className="primary-btn" type="submit">Save Links</button>
@@ -588,6 +626,7 @@ function ContactPage({ data, navigate }) {
         {links.telegram && <a className="telegram" href={links.telegram} target="_blank" rel="noreferrer"><Icon name="send" /> Telegram</a>}
         {links.youtube && <a className="youtube" href={links.youtube} target="_blank" rel="noreferrer"><Icon name="play" /> YouTube</a>}
         {links.instagram && <a className="instagram" href={links.instagram} target="_blank" rel="noreferrer"><Icon name="camera" /> Instagram</a>}
+        {links.whatsapp && <a className="whatsapp" href={normalizeSocialHref("whatsapp", links.whatsapp)} target="_blank" rel="noreferrer"><BrandIcon name="whatsapp" /> WhatsApp</a>}
       </div>
     </SimplePage>
   );
@@ -729,6 +768,16 @@ function Icon({ name }) {
     refresh: <><path d="M21 12a9 9 0 0 1-15 6.7" /><path d="M3 12a9 9 0 0 1 15-6.7" /><path d="M18 3v5h-5" /><path d="M6 21v-5h5" /></>
   };
   return <svg className="svg-icon" viewBox="0 0 24 24" aria-hidden="true">{icons[name] || icons.home}</svg>;
+}
+
+function BrandIcon({ name }) {
+  const icons = {
+    whatsapp: <path d="M12.04 2.1a9.86 9.86 0 0 0-8.5 14.86L2.1 22l5.17-1.36A9.86 9.86 0 1 0 12.04 2.1Zm5.74 14.1c-.24.67-1.22 1.23-1.96 1.4-.52.12-1.2.22-3.5-.73-2.93-1.21-4.82-4.2-4.97-4.39-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.78-.36h.56c.18 0 .42-.07.66.5.24.58.82 2 .89 2.14.07.15.12.32.02.51-.1.2-.15.32-.29.49-.15.17-.31.38-.44.51-.15.15-.3.31-.13.6.17.29.75 1.23 1.6 1.99 1.1.98 2.03 1.28 2.32 1.43.29.15.46.12.63-.07.19-.22.73-.85.92-1.14.19-.29.39-.24.66-.15.27.1 1.7.8 1.99.95.29.15.49.22.56.34.07.12.07.7-.17 1.39Z" />,
+    instagram: <><path d="M7.8 2h8.4A5.8 5.8 0 0 1 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8A5.8 5.8 0 0 1 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2Zm4.2 5.1a4.9 4.9 0 1 0 0 9.8 4.9 4.9 0 0 0 0-9.8Zm0 1.8a3.1 3.1 0 1 1 0 6.2 3.1 3.1 0 0 1 0-6.2Zm5.1-2.05a1.15 1.15 0 1 0 0 2.3 1.15 1.15 0 0 0 0-2.3Z" /></>,
+    youtube: <path d="M21.58 7.2a2.74 2.74 0 0 0-1.93-1.94C17.95 4.8 12 4.8 12 4.8s-5.95 0-7.65.46A2.74 2.74 0 0 0 2.42 7.2 28.6 28.6 0 0 0 2 12a28.6 28.6 0 0 0 .42 4.8 2.74 2.74 0 0 0 1.93 1.94c1.7.46 7.65.46 7.65.46s5.95 0 7.65-.46a2.74 2.74 0 0 0 1.93-1.94A28.6 28.6 0 0 0 22 12a28.6 28.6 0 0 0-.42-4.8ZM10 15.2V8.8l5.2 3.2L10 15.2Z" />,
+    telegram: <path d="M21.9 4.28 18.63 19.7c-.25 1.09-.9 1.36-1.82.85l-5-3.69-2.41 2.32c-.27.27-.49.49-1 .49l.36-5.08 9.25-8.36c.4-.36-.09-.56-.62-.2L5.96 13.23.99 11.68c-1.08-.34-1.1-1.08.23-1.6L20.65 2.6c.9-.34 1.68.2 1.25 1.68Z" />
+  };
+  return <svg className="brand-icon" viewBox="0 0 24 24" aria-hidden="true">{icons[name] || icons.telegram}</svg>;
 }
 
 function getRoute() {
