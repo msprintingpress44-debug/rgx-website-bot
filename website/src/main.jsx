@@ -166,7 +166,6 @@ function HomePage({ data, navigate, postId, favoriteIds, toggleFavorite }) {
             <PostView post={currentPost} files={data.files} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} />
           ) : (
             <>
-              <Hero latest={pinned?.title} />
               <SectionTitle title="Pinned Post" />
               {pinned ? <PostCard post={pinned} pinned navigate={navigate} favoriteIds={favoriteIds} toggleFavorite={toggleFavorite} /> : <Empty text="No post published yet." />}
               <SectionTitle title="All Story" />
