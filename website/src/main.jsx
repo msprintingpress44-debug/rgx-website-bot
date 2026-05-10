@@ -87,7 +87,10 @@ function Shell({ children, navigate }) {
     { label: "Home", path: "/", icon: "home" },
     { label: "Favorites", path: "/favorites", icon: "heart" },
     { label: "About", path: "/about", icon: "user" },
-    { label: "Contact", path: "/contact", icon: "mail" }
+    { label: "Contact", path: "/contact", icon: "mail" },
+    { label: "Privacy Policy", path: "/privacy-policy", icon: "link" },
+    { label: "Disclaimer", path: "/disclaimer", icon: "post" },
+    { label: "Terms", path: "/terms-and-conditions", icon: "dashboard" }
   ];
 
   function toggleTheme() {
@@ -110,7 +113,7 @@ function Shell({ children, navigate }) {
       <div className="layout">
         <aside className={menuOpen ? "rail expanded" : "rail"}>
           {navItems.map((item) => (
-            <button key={item.path} onClick={() => navigate(item.path)} title={item.label}>
+            <button key={item.path} onClick={() => { navigate(item.path); setMenuOpen(false); }} title={item.label}>
               <Icon name={item.icon} />
               <span>{item.label}</span>
             </button>
