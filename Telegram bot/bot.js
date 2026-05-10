@@ -22,7 +22,8 @@ const {
   UPDATE_MODE = "polling",
   POLLING_ENABLED = "true",
   WEBHOOK_URL = "",
-  WEBHOOK_SECRET = ""
+  WEBHOOK_SECRET = "",
+  POST_NOTIFY_INTERVAL_MS = "60000"
 } = process.env;
 
 if (!BOT_TOKEN) throw new Error("BOT_TOKEN is required. Create .env from .env.example.");
@@ -42,10 +43,11 @@ const states = new Map();
 const dataPath = path.resolve(__dirname, "..", "data", "files.json");
 const webhookPath = `/telegram/${WEBHOOK_SECRET || crypto.createHash("sha256").update(BOT_TOKEN).digest("hex").slice(0, 32)}`;
 let pollingRestartTimer = null;
+let postNotifyTimer = null;
 
 startHealthServer();
 ensureDataFile();
-syncFromFirebase().catch(() => {});
+syncFromFirebase().catch(() => {}).finally(() => startPostNotificationWatcher());
 bot.setMyCommands([
   { command: "start", description: "Open RGX panel" }
 ]).catch(() => {});
@@ -894,6 +896,79 @@ async function broadcastText(adminChatId, text) {
   }
 
   await bot.sendMessage(adminChatId, `Mini app broadcast done.\nSent: ${sent}\nFailed: ${failed}`, backKeyboard());
+}
+
+function startPostNotificationWatcher() {
+  if (postNotifyTimer) return;
+  const interval = Math.max(Number(POST_NOTIFY_INTERVAL_MS) || 60000, 15000);
+  setTimeout(() => checkNewPostNotifications().catch((error) => console.error(`Post notification check failed: ${error.message}`)), 8000);
+  postNotifyTimer = setInterval(() => {
+    checkNewPostNotifications().catch((error) => console.error(`Post notification check failed: ${error.message}`));
+  }, interval);
+  if (postNotifyTimer.unref) postNotifyTimer.unref();
+  console.log(`Post notification watcher started every ${interval}ms.`);
+}
+
+async function checkNewPostNotifications() {
+  const fresh = await fetchFirebaseData();
+  if (!fresh) return;
+
+  const db = normalizeDb(fresh);
+  const posts = Array.isArray(db.posts) ? db.posts.filter((post) => post && post.active !== false && post.id) : [];
+  const existing = readDb();
+  const notified = Array.isArray(existing.settings?.notifiedPostIds) ? existing.settings.notifiedPostIds.map(String) : [];
+
+  if (!notified.length) {
+    db.settings = { socialLinks: {}, ...db.settings, notifiedPostIds: posts.map((post) => String(post.id)) };
+    fs.writeFileSync(dataPath, JSON.stringify(db, null, 2));
+    return;
+  }
+
+  const newPosts = posts
+    .filter((post) => !notified.includes(String(post.id)))
+    .sort((a, b) => String(a.createdAt || a.updatedAt || "").localeCompare(String(b.createdAt || b.updatedAt || "")));
+
+  if (!newPosts.length) {
+    fs.writeFileSync(dataPath, JSON.stringify(db, null, 2));
+    return;
+  }
+
+  for (const post of newPosts) {
+    await notifyUsersAboutPost(post);
+    notified.push(String(post.id));
+  }
+
+  db.settings = { socialLinks: {}, ...db.settings, notifiedPostIds: Array.from(new Set(notified)) };
+  fs.writeFileSync(dataPath, JSON.stringify(db, null, 2));
+  await pushToFirebase(db);
+}
+
+async function notifyUsersAboutPost(post) {
+  const db = readDb();
+  const users = Object.keys(db.users || {}).filter((id) => !db.users[id].banned);
+  if (!users.length) return;
+
+  const site = PUBLIC_SITE_URL.replace(/\/$/, "");
+  const postLink = `${site}/?post=${encodeURIComponent(post.id)}`;
+  const title = trim(post.title || "New Rahul Gamer X Post", 120);
+  const category = post.category ? `\nCategory: ${post.category}` : "";
+  const description = post.description ? `\n\n${trim(post.description, 180)}` : "";
+  const text = `New post published on Rahul Gamer X\n\n${title}${category}${description}\n\nOpen post:\n${postLink}`;
+  let sent = 0;
+  let failed = 0;
+
+  for (const userId of users) {
+    try {
+      await bot.sendMessage(userId, text, { disable_web_page_preview: false });
+      sent += 1;
+    } catch (error) {
+      failed += 1;
+    }
+  }
+
+  if (ADMIN_CHAT_ID) {
+    await bot.sendMessage(ADMIN_CHAT_ID, `Post notification sent.\nPost: ${title}\nSent: ${sent}\nFailed: ${failed}`).catch(() => {});
+  }
 }
 
 async function showCommands(chatId) {
